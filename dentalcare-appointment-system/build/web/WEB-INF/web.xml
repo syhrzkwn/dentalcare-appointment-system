@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
+    <servlet>
+        <servlet-name>AuthRegister</servlet-name>
+        <servlet-class>com.dentalcare.controller.AuthRegister</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AuthLogin</servlet-name>
+        <servlet-class>com.dentalcare.controller.AuthLogin</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AuthLogout</servlet-name>
+        <servlet-class>com.dentalcare.controller.AuthLogout</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AuthRegister</servlet-name>
+        <url-pattern>/auth_register.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AuthLogin</servlet-name>
+        <url-pattern>/auth_login.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AuthLogout</servlet-name>
+        <url-pattern>/auth_logout.do</url-pattern>
+    </servlet-mapping>
+    <session-config>
+        <session-timeout>15</session-timeout>
+    </session-config>
+</web-app>
