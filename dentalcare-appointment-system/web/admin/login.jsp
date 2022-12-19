@@ -34,7 +34,7 @@
                         <div class="d-grid mx-auto">
                             <button class="btn btn-primary py-3 rounded-pill" type="submit">Log In</button>
                         </div>
-                        <input type="hidden" name="role" value="Admin">
+                        <input type="hidden" name="user_type" value="08y*6M">
                     </form>
                 </div>
             </div>
