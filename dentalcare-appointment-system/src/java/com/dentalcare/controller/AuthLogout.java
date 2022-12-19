@@ -31,7 +31,13 @@ public class AuthLogout extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         
-        if(session.getAttribute("admin") != null) {
+        if(session.getAttribute("staff") != null) {
+            session.invalidate();
+            request.setAttribute("successMsgs", "You have logged out successfully");
+            RequestDispatcher view = request.getRequestDispatcher("/admin/login.jsp?secret_key=dn3@ZDt8UJ8l");
+            view.forward(request, response);
+        }
+        else if(session.getAttribute("dentist") != null) {
             session.invalidate();
             request.setAttribute("successMsgs", "You have logged out successfully");
             RequestDispatcher view = request.getRequestDispatcher("/admin/login.jsp?secret_key=dn3@ZDt8UJ8l");

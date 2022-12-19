@@ -4,11 +4,9 @@ package com.dentalcare.controller;
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
+
 import com.dentalcare.model.Patient;
-import com.dentalcare.model.Admin;
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,7 +23,7 @@ import javax.servlet.http.HttpSession;
  */
 public class AuthRegister extends HttpServlet {
     
-    private PreparedStatement pstmt1, pstmt2;
+    private PreparedStatement pstmt1, pstmt2, pstmt3, pstmt4, pstmt5, pstmt6, pstmt7;
     
     @Override
     public void init() throws ServletException {
@@ -43,7 +41,7 @@ public class AuthRegister extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-                List errorMsgs = new LinkedList();
+        List errorMsgs = new LinkedList();
         
         String firstname = request.getParameter("firstname");
         String lastname = request.getParameter("lastname");
@@ -51,7 +49,7 @@ public class AuthRegister extends HttpServlet {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
         String confirm_password = request.getParameter("confirm_password");
-        String role_code = request.getParameter("role_code");
+        String user_type = request.getParameter("user_type");
             
         try {
             if(firstname.isEmpty()) {
@@ -78,65 +76,126 @@ public class AuthRegister extends HttpServlet {
                 errorMsgs.add("Password does not match");
             }
             
-            if(isEmailExists(email) != null) {
-                errorMsgs.add("Email address is already registered with other account");
-            }
-            
-            if(!errorMsgs.isEmpty()) {
+            if(!errorMsgs.isEmpty() && user_type.equals("$B9f861")) {
                 request.setAttribute("errorMsgs", errorMsgs);
                 RequestDispatcher view = request.getRequestDispatcher("/signup.jsp");
                 view.forward(request, response);
                 return;
             }
             
-            switch (role_code) {
-                case "$B9f86":
+            if(!errorMsgs.isEmpty() && user_type.equals("$B9f862")) {
+                request.setAttribute("errorMsgs", errorMsgs);
+                RequestDispatcher view = request.getRequestDispatcher("/admin/patient/add.jsp");
+                view.forward(request, response);
+                return;
+            }
+            
+            if(!errorMsgs.isEmpty() && user_type.equals("8Dv46$")) {
+                request.setAttribute("errorMsgs", errorMsgs);
+                RequestDispatcher view = request.getRequestDispatcher("/admin/dentist/add.jsp");
+                view.forward(request, response);
+                return;
+            }
+            
+            if(!errorMsgs.isEmpty() && user_type.equals("08y*6M")) {
+                request.setAttribute("errorMsgs", errorMsgs);
+                RequestDispatcher view = request.getRequestDispatcher("/admin/staff/add.jsp");
+                view.forward(request, response);
+                return;
+            }
+            
+            switch (user_type) {
+                case "$B9f861":
                 {
-                    Patient Patient = new Patient(firstname, lastname, phone, email, password, "Patient");
-                    Patient.setFirstName(firstname);
-                    Patient.setLastName(lastname);
-                    Patient.setPhone(phone);
-                    Patient.setEmail(email);
-                    Patient.setRole("Patient");
+                    if(isPatientEmailExists(email) != null) {
+                        request.setAttribute("errorMsgs", "Email address is already registered with other account");
+                        RequestDispatcher view = request.getRequestDispatcher("/signup.jsp");
+                        view.forward(request, response);
+                    }
+                    else {
+                        //hashing password
+                        String hashPassword = AuthLogin.doHashing(password);
+
+                        //store data in db
+                        storePatient(firstname, lastname, phone, email, hashPassword);
+
+                        HttpSession session = request.getSession();
+                        session.setAttribute("patient", getPatientData(email,hashPassword));
+                        request.setAttribute("successMsgs", "You have signup successfully");
+                        RequestDispatcher view = request.getRequestDispatcher("/patient/home.jsp");
+                        view.forward(request,response);
+                    }
                     
-                    String hashPassword = doHashing(password);
+                    break;
+                }
+                case "$B9f862":
+                {
+                    if(isPatientEmailExists(email) != null) {
+                        request.setAttribute("errorMsgs", "Email address is already registered with other account");
+                        RequestDispatcher view = request.getRequestDispatcher("/admin/patient/add.jsp");
+                        view.forward(request, response);
+                    }
+                    else {
+                        //hashing password
+                        String hashPassword = AuthLogin.doHashing(password);
+
+                        //store data in db
+                        storePatient(firstname, lastname, phone, email, hashPassword);
+
+                        HttpSession session = request.getSession();
+                        session.setAttribute("patient", getPatientData(email,hashPassword));
+                        request.setAttribute("successMsgs", "You have signup successfully");
+                        RequestDispatcher view = request.getRequestDispatcher("/admin/patient/add.jsp");
+                        view.forward(request,response);
+                    }
                     
-                    Patient.setPassword(hashPassword);
-                    
-                    storeUser(firstname, lastname, phone, email, hashPassword, "Patient");
-                    
-                    HttpSession session = request.getSession();
-                    session.setAttribute("patient",Patient);
-                    request.setAttribute("successMsgs", "You have signup successfully");
-                    RequestDispatcher view = request.getRequestDispatcher("/patient/appointment.jsp");
-                    view.forward(request,response);
                     break;
                 }
                 case "8Dv46$":
                 {
-                    Admin Admin = new Admin(firstname, lastname, phone, email, password, "Admin");
-                    Admin.setFirstName(firstname);
-                    Admin.setLastName(lastname);
-                    Admin.setPhone(phone);
-                    Admin.setEmail(email);
-                    Admin.setRole("Admin");
+                    if(isDentistEmailExists(email) != null) {
+                        request.setAttribute("errorMsgs", "Email address is already registered with other account");
+                        RequestDispatcher view = request.getRequestDispatcher("/admin/dentist/add.jsp");
+                        view.forward(request, response);
+                    }
+                    else {
+                        //hashing password
+                        String hashPassword = AuthLogin.doHashing(password);
+
+                        //store data in db
+                        storeDentist(firstname, lastname, phone, email, hashPassword);
+
+                        request.setAttribute("successMsgs", "You have signup successfully");
+                        RequestDispatcher view = request.getRequestDispatcher("/admin/dentist/add.jsp");
+                        view.forward(request,response);
+                    }
                     
-                    String hashPassword = doHashing(password);
+                    break;
+                }
+                case "08y*6M":
+                {
+                    if(isStaffEmailExists(email) != null) {
+                        request.setAttribute("errorMsgs", "Email address is already registered with other account");
+                        RequestDispatcher view = request.getRequestDispatcher("/admin/staff/add.jsp");
+                        view.forward(request, response);
+                    }
+                    else {
+                        //hashing password
+                        String hashPassword = AuthLogin.doHashing(password);
+
+                        //store data in db
+                        storeStaff(firstname, lastname, phone, email, hashPassword);
+
+                        request.setAttribute("successMsgs", "You have signup successfully");
+                        RequestDispatcher view = request.getRequestDispatcher("/admin/staff/add.jsp");
+                        view.forward(request,response);
+                    }
                     
-                    Admin.setPassword(hashPassword);
-                    
-                    storeUser(firstname, lastname, phone, email, hashPassword, "Admin");
-                    
-                    HttpSession session = request.getSession();
-                    session.setAttribute("admin",Admin);
-                    request.setAttribute("successMsgs", "You have signup successfully");
-                    RequestDispatcher view = request.getRequestDispatcher("/admin/register.jsp");
-                    view.forward(request,response);
                     break;
                 }
                 default:
                 {
-                    request.setAttribute("errorMsgs", "Something went wrong");
+                    request.setAttribute("errorMsgs", "Opps! Sorry, something went wrong");
                     RequestDispatcher view = request.getRequestDispatcher("/signup.jsp");
                     view.forward(request,response);
                     break;
@@ -184,29 +243,6 @@ public class AuthRegister extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
-    //Hashing Function
-    private static String doHashing(String password) {
-        try {
-            MessageDigest messageDigest = MessageDigest.getInstance("MD5");
-            
-            messageDigest.update(password.getBytes());
-            
-            byte[] resultByteArray = messageDigest.digest();
-            
-            StringBuilder sb = new StringBuilder();
-            
-            for(byte b : resultByteArray) {
-                sb.append(String.format("%02x", b));
-            }
-            
-            return sb.toString();
-            
-        } catch(NoSuchAlgorithmException ex) {
-            //ex.printStackTrace();
-        }
-        return "";
-    }
     
     //connect with db and query to run
     private void initializeJdbc() {
@@ -221,43 +257,127 @@ public class AuthRegister extends HttpServlet {
             //connect to the database
             Connection conn = DriverManager.getConnection(connectionString);
             
-            //check email exists in db query
+            //check email exists in patient, dentist, staff db query
             pstmt1 = conn.prepareStatement(
-             "SELECT * FROM USERS WHERE email=?"
+             "SELECT * FROM patients WHERE patient_email=?"
+            );
+            pstmt2 = conn.prepareStatement(
+             "SELECT * FROM dentists WHERE dentist_email=?"
+            );
+            pstmt3 = conn.prepareStatement(
+             "SELECT * FROM staffs WHERE staff_email=?"
             );
             
-            //store user data in db query
-            pstmt2 = conn.prepareStatement(
-             "INSERT INTO USERS(firstname, lastname, phone, email, password, role) VALUES(?,?,?,?,?,?)"
+            //store patient, dentist, staff data in db query
+            pstmt4 = conn.prepareStatement(
+             "INSERT INTO patients(patient_firstname, patient_lastname, patient_phone, patient_email, patient_password) VALUES(?,?,?,?,?)"
             );
+            pstmt5 = conn.prepareStatement(
+             "INSERT INTO dentists(dentist_firstname, dentist_lastname, dentist_phone, dentist_email, dentist_password) VALUES(?,?,?,?,?)"
+            );
+            pstmt6 = conn.prepareStatement(
+             "INSERT INTO staffs(staff_firstname, staff_lastname, staff_phone, staff_email, staff_password) VALUES(?,?,?,?,?)"
+            );
+            
+            //sql query to get patient, dentist, staff data
+            pstmt7 = conn.prepareStatement(
+             "SELECT * FROM patients WHERE patient_email=? AND patient_password=?"
+            );
+            
         } catch (ClassNotFoundException | SQLException ex) {
         }
     }
     
-    //method for email exists checking
-    private String isEmailExists(String email) throws SQLException {
+    //method for patient email exists checking
+    private String isPatientEmailExists(String email) throws SQLException {
         pstmt1.setString(1,email);
         ResultSet rs = pstmt1.executeQuery(); //for execute select query
-        String data = null;
         
         if(rs.next()) {
-            data = rs.getString(1);
+            String data = rs.getString(1);
+            return data;
         }
-        if(data == null) {
-            data = null;
+        else {
+            return null;
         }
-        
-        return data;
     }
     
-    //method for store user data
-    private void storeUser(String firstname, String lastname, String phone, String email, String password, String role) throws SQLException {
-        pstmt2.setString(1,firstname);
-        pstmt2.setString(2,lastname);
-        pstmt2.setString(3,phone);
-        pstmt2.setString(4,email);
-        pstmt2.setString(5,password);
-        pstmt2.setString(6,role);
-        pstmt2.executeUpdate();
+    //method for patient email exists checking
+    private String isDentistEmailExists(String email) throws SQLException {
+        pstmt2.setString(1,email);
+        ResultSet rs = pstmt2.executeQuery(); //for execute select query
+        
+        if(rs.next()) {
+            String data = rs.getString(1);
+            return data;
+        }
+        else {
+            return null;
+        }
+    }
+    
+    //method for patient email exists checking
+    private String isStaffEmailExists(String email) throws SQLException {
+        pstmt3.setString(1,email);
+        ResultSet rs = pstmt3.executeQuery(); //for execute select query
+        
+        if(rs.next()) {
+            String data = rs.getString(1);
+            return data;
+        }
+        else {
+            return null;
+        }
+    }
+    
+    //method for store patient data
+    private void storePatient(String firstname, String lastname, String phone, String email, String password) throws SQLException {
+        pstmt4.setString(1,firstname);
+        pstmt4.setString(2,lastname);
+        pstmt4.setString(3,phone);
+        pstmt4.setString(4,email);
+        pstmt4.setString(5,password);
+        pstmt4.executeUpdate();
+    }
+    
+    //method for store dentist data
+    private void storeDentist(String firstname, String lastname, String phone, String email, String password) throws SQLException {
+        pstmt5.setString(1,firstname);
+        pstmt5.setString(2,lastname);
+        pstmt5.setString(3,phone);
+        pstmt5.setString(4,email);
+        pstmt5.setString(5,password);
+        pstmt5.executeUpdate();
+    }
+    
+    //method for store staff data
+    private void storeStaff(String firstname, String lastname, String phone, String email, String password) throws SQLException {
+        pstmt6.setString(1,firstname);
+        pstmt6.setString(2,lastname);
+        pstmt6.setString(3,phone);
+        pstmt6.setString(4,email);
+        pstmt6.setString(5,password);
+        pstmt6.executeUpdate();
+    }
+    
+    //method for check and get data patient account
+    private Patient getPatientData(String email, String password) throws SQLException {
+        pstmt7.setString(1,email);
+        pstmt7.setString(2,password);
+        ResultSet rs = pstmt7.executeQuery(); //for execute select query
+
+        if(rs.next()) {
+            Patient data = new Patient();
+            data.setId(rs.getInt("patient_id"));
+            data.setFirstName(rs.getString("patient_firstname"));
+            data.setLastName(rs.getString("patient_lastname"));
+            data.setPhone(rs.getString("patient_phone"));
+            data.setEmail(rs.getString("patient_email"));
+            data.setStatus(rs.getString("patient_status"));
+            return data;
+        }
+        else {
+            return null;
+        }
     }
 }
