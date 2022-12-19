@@ -24,18 +24,42 @@
                             <form method="post" action="auth_login.do">
                                 <div class="form-floating mb-3">
                                     <input type="email" class="form-control" id="email" name="email" placeholder="example@dentalcare.com">
-                                    <label for="email">Email Address<span class="text-danger">*</span></label>
+                                    <label for="email">Email Address <span class="text-danger">*</span></label>
                                 </div>
                                 <div class="form-floating mb-3">
                                     <input type="password" class="form-control" id="password" name="password" placeholder="Password">
-                                    <label for="password">Password<span class="text-danger">*</span></label>
+                                    <label for="password">Password <span class="text-danger">*</span></label>
+                                </div>
+                                <div class="mb-3">
+                                    <!-- Button trigger modal -->
+                                    <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                                        Forgot Password?
+                                    </button>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                      <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="staticBackdropLabel">Forgot your password?</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Please contact our Admin at <a href="mailto:admin@dentalcare.com">admin@dentalcare.com</a> to reset your password. We are truly sorry for any inconvenience.<p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                                            </div>
+                                        </div>
+                                      </div>
+                                    </div>
                                 </div>
                                 <div class="d-grid mx-auto mb-5">
                                     <button class="btn btn-primary py-3 rounded-pill" type="submit">Log In</button>
                                 </div>
-                                <input type="hidden" name="role" value="Patient">
+                                <input type="hidden" name="user_type" value="$B9f86">
                                 <div>
-                                    <p>Don't have an account to book your first appointment? <a href="signup.jsp">Signup</a> now!</p>
+                                    <p>Don't have an account to book your first appointment? <a href="${pageContext.servletContext.contextPath}/signup.jsp">Signup</a> now!</p>
                                 </div>
                             </form>
                             <!-- Errors message -->

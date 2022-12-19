@@ -24,34 +24,34 @@
                             <form method="post" action="auth_register.do">
                                 <div class="form-floating mb-3">
                                     <input type="text" class="form-control" id="firstname" name="firstname" placeholder="Syahir">
-                                    <label for="firstname">First Name<span class="text-danger">*</span></label>
+                                    <label for="firstname">First Name <span class="text-danger">*</span></label>
                                 </div>
                                 <div class="form-floating mb-3">
                                     <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Zakwan">
-                                    <label for="lastname">Last Name<span class="text-danger">*</span></label>
+                                    <label for="lastname">Last Name <span class="text-danger">*</span></label>
                                 </div>
                                 <div class="form-floating mb-3">
                                     <input type="tel" class="form-control" id="phone" name="phone" placeholder="0123456789">
-                                    <label for="phone">Phone<span class="text-danger">*</span></label>
+                                    <label for="phone">Phone <span class="text-danger">*</span></label>
                                 </div>
                                 <div class="form-floating mb-3">
                                     <input type="email" class="form-control" id="email" name="email" placeholder="example@dentalcare.com">
-                                    <label for="email">Email Address<span class="text-danger">*</span></label>
+                                    <label for="email">Email Address <span class="text-danger">*</span></label>
                                 </div>
                                 <div class="form-floating mb-3">
                                     <input type="password" class="form-control" id="password" name="password" placeholder="Password">
-                                    <label for="password">Password<span class="text-danger">*</span></label>
+                                    <label for="password">Password <span class="text-danger">*</span></label>
                                 </div>
                                 <div class="form-floating mb-4">
                                     <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Password">
-                                    <label for="confirm-password">Confirm Password<span class="text-danger">*</span></label>
+                                    <label for="confirm-password">Confirm Password <span class="text-danger">*</span></label>
                                 </div>
-                                <input type="hidden" name="role_code" value="$B9f86">
+                                <input type="hidden" name="user_type" value="$B9f861">
                                 <div class="d-grid mx-auto mb-5">
                                     <button class="btn btn-primary py-3 rounded-pill" type="submit">Sign Up</button>
                                 </div>
                                 <div>
-                                    <p>Already have an account? <a href="login.jsp">Login</a></p>
+                                    <p>Already have an account? <a href="${pageContext.servletContext.contextPath}/login.jsp">Login</a></p>
                                 </div>
                             </form>
                             <!-- Errors message -->
