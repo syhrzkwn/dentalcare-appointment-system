@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class AppointmentUpdate extends HttpServlet {
 
-    private PreparedStatement pstmt1, pstmt2, pstmt3, pstmt4;
+    private PreparedStatement pstmt1, pstmt2, pstmt3;
     
     @Override
     public void init() throws ServletException {
@@ -48,55 +48,45 @@ public class AppointmentUpdate extends HttpServlet {
         String date = request.getParameter("date");
         String time = request.getParameter("time");
         String remark = request.getParameter("remark");
-        String user_type = request.getParameter("user_type");
         String form = request.getParameter("form");
         
         int dentist_id = Integer.parseInt(request.getParameter("dentist_id"));
         int aptmt_id = Integer.parseInt(request.getParameter("aptmt_id"));
         
         try {
-            switch(user_type) {
-                case "$B9f86":
+            switch(form) {
+                case "form1":
                 {                    
-                    updateAppointmentUser(status, aptmt_id);
-                    request.setAttribute("successMsgs", "Appointment has been cancelled");
-                    RequestDispatcher view = request.getRequestDispatcher("/signup.jsp"); //change the path later
-                    view.forward(request, response);
-                    break;
-                }
-                case "08y*6M":
-                {
-                    if(form.equals("form1")) {
-
-                        if(remark.isEmpty()) {
+                    if(remark.isEmpty()) {
                             errorMsgs.add("Remark is required");
                         }
 
-                        if(!errorMsgs.isEmpty()) {
-                            request.setAttribute("errorMsgs", errorMsgs);
-                            RequestDispatcher view = request.getRequestDispatcher("/admin/appointment/edit.jsp?aptmt_id="+aptmt_id);
-                            view.forward(request, response);
-                            return;
-                        }
-                        
-                        updateAppointmentAdmin(date, time, status, remark, aptmt_id);
-                        request.setAttribute("successMsgs", "Appointment details has been updated");
+                    if(!errorMsgs.isEmpty()) {
+                        request.setAttribute("errorMsgs", errorMsgs);
+                        RequestDispatcher view = request.getRequestDispatcher("/admin/appointment/edit.jsp?aptmt_id="+aptmt_id);
+                        view.forward(request, response);
+                        return;
+                    }
+
+                    updateAppointmentAdmin(date, time, status, remark, aptmt_id);
+                    request.setAttribute("successMsgs", "Appointment details has been updated");
+                    RequestDispatcher view = request.getRequestDispatcher("/admin/appointment/edit.jsp?aptmt_id="+aptmt_id);
+                    view.forward(request, response);
+                    
+                    break;
+                }
+                case "form2":
+                {
+                    if(isDentistAssigned(date, time, dentist_id) != null) {
+                        request.setAttribute("errorMsgs", "The chosen dentist has been assigned for other appointment on selected date and time. Select other dentist.");
                         RequestDispatcher view = request.getRequestDispatcher("/admin/appointment/edit.jsp?aptmt_id="+aptmt_id);
                         view.forward(request, response);
                     }
-                    else if(form.equals("form2")) {
-                        
-                        if(isDentistAssigned(date, time, dentist_id) != null) {
-                            request.setAttribute("errorMsgs", "The chosen dentist has been assigned for other appointment on selected date and time. Select other dentist.");
-                            RequestDispatcher view = request.getRequestDispatcher("/admin/appointment/edit.jsp?aptmt_id="+aptmt_id);
-                            view.forward(request, response);
-                        }
-                        else {
-                            assignDentist(dentist_id, aptmt_id);
-                            request.setAttribute("successMsgs", "Dentist has been assigned successfully");
-                            RequestDispatcher view = request.getRequestDispatcher("/admin/appointment/edit.jsp?aptmt_id="+aptmt_id);
-                            view.forward(request, response);
-                        }
+                    else {
+                        assignDentist(dentist_id, aptmt_id);
+                        request.setAttribute("successMsgs", "Dentist has been assigned successfully");
+                        RequestDispatcher view = request.getRequestDispatcher("/admin/appointment/edit.jsp?aptmt_id="+aptmt_id);
+                        view.forward(request, response);
                     }
                     
                     break;
@@ -171,18 +161,13 @@ public class AppointmentUpdate extends HttpServlet {
              "UPDATE appointments SET aptmt_date=?, aptmt_time=?, aptmt_status=?, aptmt_remark=? WHERE aptmt_id=?"
             );
             
-            //update appointment data in db query
-            pstmt2 = conn.prepareStatement(
-             "UPDATE appointments SET aptmt_status=? WHERE aptmt_id=?"
-            );
-            
             //assign dentist in appointment data in db query
-            pstmt3 = conn.prepareStatement(
+            pstmt2 = conn.prepareStatement(
              "UPDATE appointments SET dentist_id=? WHERE aptmt_id=?"
             );
             
             //check the dentist has been assigned for selected date and time query
-            pstmt4 = conn.prepareStatement(
+            pstmt3 = conn.prepareStatement(
              "SELECT * FROM appointments WHERE aptmt_date=? AND aptmt_time=? AND dentist_id=? AND aptmt_status != 'Cancelled'"
             );
             
@@ -200,26 +185,19 @@ public class AppointmentUpdate extends HttpServlet {
         pstmt1.executeUpdate();
     }
     
-    //method for update appointment data - patient
-    private void updateAppointmentUser(String status, int aptmt) throws SQLException {
-        pstmt2.setString(1,status);
+    //method for update appointment data - assign dentist
+    private void assignDentist(int dentist, int aptmt) throws SQLException {
+        pstmt2.setInt(1,dentist);
         pstmt2.setInt(2,aptmt);
         pstmt2.executeUpdate();
     }
     
-    //method for update appointment data - assign dentist
-    private void assignDentist(int dentist, int aptmt) throws SQLException {
-        pstmt3.setInt(1,dentist);
-        pstmt3.setInt(2,aptmt);
-        pstmt3.executeUpdate();
-    }
-    
     //check if the dentist has been assigned for selected date and time
     private String isDentistAssigned(String date, String time, int dentist) throws SQLException {
-        pstmt4.setString(1,date);
-        pstmt4.setString(2,time);
-        pstmt4.setInt(3,dentist);
-        ResultSet rs = pstmt4.executeQuery(); //for execute select query
+        pstmt3.setString(1,date);
+        pstmt3.setString(2,time);
+        pstmt3.setInt(3,dentist);
+        ResultSet rs = pstmt3.executeQuery(); //for execute select query
         
         if(rs.next()) {
             String data = rs.getString(1);

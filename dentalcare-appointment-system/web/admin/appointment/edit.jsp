@@ -122,7 +122,6 @@
                                                     </div>
                                                     <div class="form-group col-md-6 mt-4">
                                                         <input type="hidden" value="form1" name="form">
-                                                        <input type="hidden" value="08y*6M" name="user_type">
                                                         <button type="submit" class="btn btn-primary">Update Appointment</button>
                                                     </div>
 
@@ -197,7 +196,6 @@
                                             </div>
                                             <div class="row">
                                                 <div class="form-group col-md-6 mt-4">
-                                                    <input type="hidden" value="08y*6M" name="user_type">
                                                     <input type="hidden" value="form2" name="form">
                                                     <button type="submit" class="btn btn-primary">Assign Dentist</button>
                                                 </div>
