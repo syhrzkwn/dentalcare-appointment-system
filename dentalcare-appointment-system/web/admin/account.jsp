@@ -83,7 +83,9 @@
                                                     <div class="form-group col-md-6">
                                                         <label for="status">Status <span class=text-danger>*</span></label>
                                                         <select class="form-select" id="status" name="status">
-                                                            <option value="Available" selected>Available</option>
+                                                            <option value="${result.staff_status}" selected>${result.staff_status}</option>
+                                                            <option disabled>───────</option>
+                                                            <option value="Available">Available</option>
                                                             <option value="On Leave">On Leave</option>
                                                         </select>
                                                     </div>

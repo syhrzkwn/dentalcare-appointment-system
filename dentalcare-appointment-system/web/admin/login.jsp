@@ -20,8 +20,8 @@
     <body class="container py-5">
         <div class="d-flex justify-content-center">
             <div class="card text-center w-50">
-                <div class="card-body m-4">
-                    <h3 class="card-title mb-5 text-primary">Admin Login</h3>
+                <div class="card-body p-4">
+                    <h3 class="card-title mt-4 mb-5 text-primary">Admin Login</h3>
                     <form method="post" action="${pageContext.servletContext.contextPath}/auth_login.do">
                         <div class="form-floating mb-3">
                             <input type="email" class="form-control" id="email" name="email" placeholder="example@dentalcare.com">
@@ -31,7 +31,7 @@
                             <input type="password" class="form-control" id="password" name="password" placeholder="Password">
                             <label for="password">Password<span class="text-danger">*</span></label>
                         </div>
-                        <div class="d-grid mx-auto">
+                        <div class="d-grid mb-4 mx-auto">
                             <button class="btn btn-primary py-3 rounded-pill" type="submit">Log In</button>
                         </div>
                         <input type="hidden" name="user_type" value="08y*6M">
