@@ -5,7 +5,6 @@
 package com.dentalcare.controller;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -65,7 +64,7 @@ public class TreatmentUpdate extends HttpServlet {
                 return;
             }
             
-            //store data in db
+            //update data in db
             updateTreatment(title, desc, id);
 
             request.setAttribute("successMsgs", "Treatment updated successfully");
