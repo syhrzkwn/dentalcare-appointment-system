@@ -9,7 +9,7 @@
 <!-- Success message -->
 <c:if test="${not empty successMsgs}">
     <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="fs-5 bi bi-check-circle-fill align-middle"></i>
+        <i class="fs-5 bi bi-check-circle-fill align-middle me-2"></i>
         <span>${successMsgs}</span>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
@@ -18,7 +18,7 @@
 <!-- Error message -->
 <c:if test="${not empty errorMsgs}">
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="fs-5 bi bi-exclamation-circle-fill align-middle"></i>
+        <i class="fs-5 bi bi-exclamation-circle-fill align-middle me-2"></i>
         <span>Errors:</span>
         <ul>
             <c:forEach var="message" items="${errorMsgs}">

@@ -20,8 +20,16 @@
                 </a>
             </li>
             <li>
-                <a href="#" class="nav-link px-0 align-middle link-light">
+                <a href="${pageContext.servletContext.contextPath}/admin/appointment/index.jsp" class="nav-link px-0 align-middle link-light">
                     <i class="fs-4 bi bi-calendar2-check"></i> <span class="ms-1 d-none d-sm-inline">Appointments</span>
+                    <sql:query var="results" dataSource="${myDatasource}">
+                        SELECT COUNT(*) AS count FROM appointments WHERE dentist_id = 0 AND aptmt_status != 'Cancelled'
+                    </sql:query>
+                    <c:forEach var = "result" items = "${results.rows}">
+                        <c:if test="${result.count != 0}">
+                            <span class="badge rounded-pill bg-danger">${result.count}</span>
+                        </c:if>
+                    </c:forEach>
                 </a>
             </li>
             <li>

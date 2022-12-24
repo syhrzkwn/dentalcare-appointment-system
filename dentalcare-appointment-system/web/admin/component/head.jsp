@@ -14,6 +14,7 @@
            url="jdbc:derby://localhost:1527/DentalcareDB"
            user="app" password="app"/>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="icon" href="${pageContext.servletContext.contextPath}/favicon.ico">
 <!-- Bootstrap 5 CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <!-- Bootstrap Icon -->
