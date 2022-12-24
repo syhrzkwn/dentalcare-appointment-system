@@ -44,6 +44,18 @@
         <servlet-name>TreatmentDelete</servlet-name>
         <servlet-class>com.dentalcare.controller.TreatmentDelete</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>AppointmentCreate</servlet-name>
+        <servlet-class>com.dentalcare.controller.AppointmentCreate</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AppointmentDelete</servlet-name>
+        <servlet-class>com.dentalcare.controller.AppointmentDelete</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AppointmentUpdate</servlet-name>
+        <servlet-class>com.dentalcare.controller.AppointmentUpdate</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>AuthRegister</servlet-name>
         <url-pattern>/auth_register.do</url-pattern>
@@ -87,6 +99,18 @@
     <servlet-mapping>
         <servlet-name>TreatmentDelete</servlet-name>
         <url-pattern>/treatment_delete.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AppointmentCreate</servlet-name>
+        <url-pattern>/appointment_add.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AppointmentDelete</servlet-name>
+        <url-pattern>/appointment_delete.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AppointmentUpdate</servlet-name>
+        <url-pattern>/appointment_update.do</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>15</session-timeout>
