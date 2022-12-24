@@ -82,7 +82,9 @@
                                                     <div class="form-group col-md-6">
                                                         <label for="status">Status <span class=text-danger>*</span></label>
                                                         <select class="form-select" id="status" name="status">
-                                                            <option value="Active" selected>Active</option>
+                                                            <option value="${result.patient_status}" selected>${result.patient_status}</option>
+                                                            <option disabled>───────</option>
+                                                            <option value="Active">Active</option>
                                                             <option value="Deactivate">Deactivate</option>
                                                         </select>
                                                     </div>
@@ -119,8 +121,8 @@
                                                 </div>
                                                 <input type="hidden" value="form3" name="form">
                                                 <input type="hidden" value="${result.patient_id}" name="id">
+                                                <button type="submit" class="btn btn-primary">Change Password</button>
                                             </c:forEach>
-                                            <button type="submit" class="btn btn-primary">Change Password</button>
                                         </form>
                                         <hr class="my-5">
                                         <form method="post" action="${pageContext.servletContext.contextPath}/patient_update.do">
@@ -128,7 +130,7 @@
                                                 <h5 class="mb-4">Danger Zone</h5>
                                                 <div class="form-group col-md-12 mb-3">
                                                     <p>This action cannot be undone. This will permanently delete the patient account. Please type <strong>${result.patient_email}</strong> to confirm.</p>
-                                                    <input type="email" class="form-control w-50 mb-4" name="email_for_delete">
+                                                    <input type="text" class="form-control w-50 mb-4" name="email_for_delete">
                                                 </div>
                                                 <input type="hidden" value="form4" name="form">
                                                 <input type="hidden" value="${result.patient_id}" name="id">
