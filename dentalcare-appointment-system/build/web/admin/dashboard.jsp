@@ -135,8 +135,8 @@
                                         <div class="card-title d-flex justify-content-between">
                                             <h5><i class="fs-3 bi-calendar2-check align-middle me-2"></i><span>Today's Appointments</span></h5>
                                             <%-- Display today date with format Mon, 12 December 2022 --%>
-                                            <%java.text.DateFormat df = new java.text.SimpleDateFormat("EEEE, dd MMMM yyyy"); %>
-                                            <span><%= df.format(date) %></span>
+                                            <%java.text.DateFormat df1 = new java.text.SimpleDateFormat("EEEE, dd MMMM yyyy"); %>
+                                            <span><%= df1.format(date) %></span>
                                         </div>
                                         <div class="card-text">
                                             <div class="table-responsive">
@@ -147,19 +147,23 @@
                                                             <th>Name</th>
                                                             <th>Phone</th>
                                                             <th>Treatment</th>
+                                                            <th>Dentist</th>
                                                             <th class="text-center">Time</th>
                                                             <th class="text-center">Status</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                    <c:set var="current_date" value="<%= date %>"/>
+                                                    <%java.text.DateFormat df2 = new java.text.SimpleDateFormat("yyyy-M-dd"); %>
+                                                    <c:set var="current_date" value="<%= df2.format(date) %>"/>
                                                     <sql:query var="results" dataSource="${myDatasource}">
                                                         SELECT appointments.aptmt_id, appointments.aptmt_date, appointments.aptmt_time, appointments.aptmt_status,
                                                         treatments.treat_title,
-                                                        patients.patient_firstname, patients.patient_lastname, patients.patient_phone
+                                                        patients.patient_firstname, patients.patient_lastname, patients.patient_phone,
+                                                        dentists.dentist_firstname, dentists.dentist_lastname, dentists.dentist_id
                                                         FROM appointments
                                                         JOIN treatments ON appointments.treat_id = treatments.treat_id
                                                         JOIN patients ON appointments.patient_id = patients.patient_id
+                                                        JOIN dentists ON appointments.dentist_id = dentists.dentist_id
                                                         WHERE appointments.aptmt_date = ?
                                                         ORDER BY appointments.aptmt_time ASC
                                                         <sql:param value="${current_date}"/>
@@ -167,7 +171,7 @@
                                                     <c:choose>
                                                         <c:when test="${empty results.rows}">
                                                             <tr>
-                                                                <td colspan="6" class="align-middle text-center py-3">There is no data</td>
+                                                                <td colspan="7" class="align-middle text-center py-3">There is no data</td>
                                                             </tr>
                                                         </c:when>
                                                         <c:otherwise>
@@ -177,6 +181,14 @@
                                                                     <td class="align-middle">${result.patient_firstname} ${result.patient_lastname}</td>
                                                                     <td class="align-middle"><a href="tel:${result.patient_phone}">${result.patient_phone}</a></td>
                                                                     <td class="align-middle">${result.treat_title}</td>
+                                                                    <c:choose>
+                                                                        <c:when test="${result.dentist_id == 0}">
+                                                                            <td class="align-middle text-danger">${result.dentist_firstname}</td>
+                                                                        </c:when>
+                                                                        <c:otherwise>
+                                                                            <td class="align-middle">Dr. ${result.dentist_firstname} ${result.dentist_lastname}</td>
+                                                                        </c:otherwise>
+                                                                    </c:choose>
                                                                     <td class="align-middle text-center"><fmt:formatDate pattern = "h:mm a" value = "${result.aptmt_time}" /></td>
                                                                     <td class="align-middle text-center">
                                                                         <c:choose>
@@ -202,7 +214,6 @@
                                                 </table>
                                             </div>
                                         </div>
-                                        <c:set var="current_date" value="<%= date %>"/>
                                         <sql:query var="results" dataSource="${myDatasource}">
                                             SELECT COUNT(*) AS count FROM appointments WHERE aptmt_date=?
                                             <sql:param value="${current_date}"/>
@@ -249,27 +260,36 @@
                                             <span>Patients</span>
                                         </h5>
                                         <div class="card-text">
+                                            <sql:query var="results" dataSource="${myDatasource}">
+                                                SELECT patient_id, patient_firstname, patient_lastname, patient_phone FROM patients WHERE first_time_booked='N' AND patient_status='Active'
+                                            </sql:query>
                                             <p>(not book appointment yet)</p>
                                             <div class="table-responsive">
                                                 <table class="table">
                                                     <thead>
                                                         <tr>
-                                                            <th class="text-center">#</th>
+                                                            <th class="text-center">#ID</th>
                                                             <th>Name</th>
                                                             <th>Contact</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <tr>
-                                                            <td class="text-center">1</td>
-                                                            <td>Johan Nazrin</td>
-                                                            <td class="text-center"><a href="#" target="_blank" class="link-success"><i class="bi bi-whatsapp"></i></a></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td class="text-center">2</td>
-                                                            <td>Danial Aqeem</td>
-                                                            <td class="text-center"><a href="#" target="_blank" class="link-success"><i class="bi bi-whatsapp"></i></a></td>
-                                                        </tr>
+                                                        <c:choose>
+                                                            <c:when test="${empty results.rows}">
+                                                                <tr>
+                                                                    <td colspan="3" class="align-middle text-center py-3">There is no data</td>
+                                                                </tr>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <c:forEach var="result" items="${results.rows}">
+                                                                    <tr>
+                                                                        <td class="text-center">${result.patient_id}</td>
+                                                                        <td>${result.patient_firstname} ${result.patient_lastname}</td>
+                                                                        <td class="text-center"><a href="https://wa.me/${result.patient_phone}" target="_blank" class="link-success"><i class="bi bi-whatsapp"></i></a></td>
+                                                                    </tr>
+                                                                </c:forEach>
+                                                            </c:otherwise>
+                                                        </c:choose>
                                                     </tbody>
                                                 </table>
                                             </div>
