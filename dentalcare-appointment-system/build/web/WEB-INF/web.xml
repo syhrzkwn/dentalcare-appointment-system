@@ -56,6 +56,22 @@
         <servlet-name>AppointmentUpdate</servlet-name>
         <servlet-class>com.dentalcare.controller.AppointmentUpdate</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>PatientAccountProfileUpdate</servlet-name>
+        <servlet-class>com.dentalcare.controller.PatientAccountProfileUpdate</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>PatientAccountEmailUpdate</servlet-name>
+        <servlet-class>com.dentalcare.controller.PatientAccountEmailUpdate</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>PatientAccountPasswordUpdate</servlet-name>
+        <servlet-class>com.dentalcare.controller.PatientAccountPasswordUpdate</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>PatientAccountDelete</servlet-name>
+        <servlet-class>com.dentalcare.controller.PatientAccountDelete</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>AuthRegister</servlet-name>
         <url-pattern>/auth_register.do</url-pattern>
@@ -112,8 +128,24 @@
         <servlet-name>AppointmentUpdate</servlet-name>
         <url-pattern>/appointment_update.do</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PatientAccountProfileUpdate</servlet-name>
+        <url-pattern>/patient_account_profile_update.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PatientAccountEmailUpdate</servlet-name>
+        <url-pattern>/patient_account_email_update.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PatientAccountPasswordUpdate</servlet-name>
+        <url-pattern>/patient_account_password_update.do</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PatientAccountDelete</servlet-name>
+        <url-pattern>/patient_account_delete.do</url-pattern>
+    </servlet-mapping>
     <session-config>
-        <session-timeout>15</session-timeout>
+        <session-timeout>30</session-timeout>
     </session-config>
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
