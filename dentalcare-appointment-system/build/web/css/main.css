@@ -1,0 +1,121 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css to edit this template
+*/
+/* 
+    Created on : Dec 27, 2022, 1:45:10 AM
+    Author     : syahir
+*/
+
+/*Google Font Link*/
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+body{
+    font-family: 'Poppins', sans-serif;
+}
+
+.bg-new{
+    background-color: #5F8EF9;
+}
+
+.text-new{
+    color: #5F8EF9;
+}
+
+.text-sec-new{
+    color: #81A6FF;
+}
+
+.link-new {
+    color: #5F8EF9;
+}
+
+.link-new:hover {
+    color: #4473DD;
+}
+
+.link-sec-new {
+    color: #81A6FF;
+}
+
+.link-sec-new:hover {
+    color: #5F8EF9;
+}
+
+.btn-new:hover{
+    color: #5F8EF9;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.btn-new-1:hover{
+    color: #FFF;
+    background-color: #4473DD;
+}
+
+/*Navbar Link Underline*/
+.nav-link{
+    position: relative;
+}
+
+.nav-link::after{
+    content: '';
+    opacity: 0;
+    transition: all 0.4s;
+    height: 2.5px;
+    width: 100%;
+    background-color: white;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+.nav-link:hover::after{
+    opacity: 1;
+}
+
+.button {
+  float: left;
+  width: 25%;
+  height: 60px;
+  margin: 0 8px 8px 0;
+  position: relative;
+  text-align: center;
+  background-color: #FFF;
+  border: 1px solid #5F8EF9;
+  color: #5F8EF9;
+  border-radius: 5px;
+}
+
+.button label,
+.button input {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 15px 0 15px 0;
+  cursor: pointer;
+}
+
+.button input[type="radio"] {
+  opacity: 0.011;
+  z-index: 100;
+}
+
+.button input[type="radio"]:checked + label {
+  background: #5F8EF9;
+  color: #FFF;
+  border-radius: 4px;
+}
+
+.button label {
+  cursor: pointer;
+  z-index: 90;
+  line-height: 1.8em;
+}
+
+.btn-outline-primary {
+    background-color: #FFF !important;
+    color: #5F8EF9 !important;
+}
