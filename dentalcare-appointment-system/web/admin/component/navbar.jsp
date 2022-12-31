@@ -24,7 +24,7 @@
                     <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                         <c:set var="id" value="${staff.getId()}"/>
                         <sql:query var="results" dataSource="${myDatasource}">
-                            SELECT * FROM APP.STAFFS WHERE staff_id=?
+                            SELECT * FROM staffs WHERE staff_id=?
                             <sql:param value="${id}"/>
                         </sql:query>
                         <c:forEach var="result" items="${results.rows}">
