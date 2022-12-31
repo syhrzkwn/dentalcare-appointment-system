@@ -69,7 +69,7 @@
                                                 </thead>
                                                 <tbody>
                                                     <sql:query var="results" dataSource="${myDatasource}">
-                                                        SELECT * FROM APP.STAFFS
+                                                        SELECT * FROM staffs
                                                     </sql:query>
                                                     <c:choose>
                                                         <c:when test="${empty results.rows}">

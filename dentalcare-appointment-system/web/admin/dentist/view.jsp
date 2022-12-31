@@ -32,7 +32,7 @@
 
                         <c:set var="id" value="${param.dentist_id}"/>
                         <sql:query var="results" dataSource="${myDatasource}">
-                            SELECT * FROM APP.DENTISTS WHERE dentist_id=? AND dentist_id != 0
+                            SELECT * FROM dentists WHERE dentist_id=? AND dentist_id != 0
                             <sql:param value="${id}"/>
                         </sql:query>
                             

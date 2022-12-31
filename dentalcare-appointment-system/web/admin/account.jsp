@@ -32,7 +32,7 @@
 
                         <c:set var="id" value="${staff.getId()}"/>
                         <sql:query var="results" dataSource="${myDatasource}">
-                            SELECT * FROM APP.STAFFS WHERE staff_id=?
+                            SELECT * FROM staffs WHERE staff_id=?
                             <sql:param value="${id}"/>
                         </sql:query>
                             
@@ -103,7 +103,6 @@
                                                 <input type="hidden" value="${staff.getId()}" name="id">
                                                 <button type="submit" class="btn btn-primary">Update Email</button>
                                             </form>
-                                           
                                         </c:forEach>
                                         <hr class="my-5">
                                         <form method="post" action="${pageContext.servletContext.contextPath}/account_password_update.do">

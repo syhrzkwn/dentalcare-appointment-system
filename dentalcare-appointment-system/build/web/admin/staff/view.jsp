@@ -32,7 +32,7 @@
 
                         <c:set var="id" value="${param.staff_id}"/>
                         <sql:query var="results" dataSource="${myDatasource}">
-                            SELECT * FROM APP.STAFFS WHERE staff_id=?
+                            SELECT * FROM staffs WHERE staff_id=?
                             <sql:param value="${id}"/>
                         </sql:query>
                             
