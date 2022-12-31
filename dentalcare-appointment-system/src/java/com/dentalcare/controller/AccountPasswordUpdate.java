@@ -136,7 +136,7 @@ public class AccountPasswordUpdate extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
-        //connect with db and query to run
+    //connect with db and query to run
     private void initializeJdbc() {
         try {
             //declare driver and connection string

@@ -43,7 +43,7 @@ public class AccountEmailUpdate extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-         List errorMsgs = new LinkedList();
+        List errorMsgs = new LinkedList();
         
         String email = request.getParameter("email");
         String id_param = request.getParameter("id");

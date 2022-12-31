@@ -138,7 +138,7 @@ public class PatientUpdate extends HttpServlet {
                     break;
                 }
                 case "form4":
-                { 
+                {
                     if(email_for_delete.isEmpty()) {
                         errorMsgs.add("Email is required");
                     }
