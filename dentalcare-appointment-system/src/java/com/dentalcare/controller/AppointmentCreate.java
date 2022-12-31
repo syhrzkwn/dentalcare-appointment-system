@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class AppointmentCreate extends HttpServlet {
 
-    private PreparedStatement pstmt1, pstmt2;
+    private PreparedStatement pstmt1, pstmt2, pstmt3, pstmt4;
     
     @Override
     public void init() throws ServletException {
@@ -69,7 +69,7 @@ public class AppointmentCreate extends HttpServlet {
             
             if(!errorMsgs.isEmpty() && user_type.equals("$B9f86")) {
                 request.setAttribute("errorMsgs", errorMsgs);
-                RequestDispatcher view = request.getRequestDispatcher("/"); //Change path later
+                RequestDispatcher view = request.getRequestDispatcher("/patient/book_appointment.jsp");
                 view.forward(request, response);
                 return;
             }
@@ -88,15 +88,20 @@ public class AppointmentCreate extends HttpServlet {
                     //start with 0
                     if(checkDatetime(date, time) >= 3) {
                         request.setAttribute("errorMsgs", "The number of appointments booked on the selected date and time has exceeded the limit");
-                        RequestDispatcher view = request.getRequestDispatcher("/"); //change the path later
+                        RequestDispatcher view = request.getRequestDispatcher("/patient/book_appointment.jsp");
                         view.forward(request, response);
                     }
                     else {
+                        //update patient first time booked status
+                        if(checkFirstAppointment(patient).equals("N")) {
+                            updateFisrtAppointment(patient);
+                        }
+                        
                         //store data in db
                         storeAppointment(date, time, remark, patient, treatment);
 
                         request.setAttribute("successMsgs", "Appointment booked successfully");
-                        RequestDispatcher view = request.getRequestDispatcher("/"); //change the path later
+                        RequestDispatcher view = request.getRequestDispatcher("/patient/home.jsp");
                         view.forward(request,response);
                     }
                     break;
@@ -111,6 +116,11 @@ public class AppointmentCreate extends HttpServlet {
                         view.forward(request, response);
                     }
                     else {
+                        //update patient first time booked status
+                        if(checkFirstAppointment(patient).equals("N")) {
+                            updateFisrtAppointment(patient);
+                        }
+                        
                         //store data in db
                         storeAppointment(date, time, remark, patient, treatment);
 
@@ -194,6 +204,16 @@ public class AppointmentCreate extends HttpServlet {
              "SELECT COUNT(*) AS count FROM appointments WHERE aptmt_date=? AND aptmt_time=? AND aptmt_status != 'Cancelled'"
             );
             
+            //check the patient already make a first time book or not
+            pstmt3 = conn.prepareStatement(
+             "SELECT first_time_booked FROM patients WHERE patient_id=?"
+            );
+            
+            //update the patient first time book
+            pstmt4 = conn.prepareStatement(
+             "UPDATE patients SET first_time_booked='Y' WHERE patient_id=?"
+            );
+            
         } catch (ClassNotFoundException | SQLException ex) {
         }
     }
@@ -218,5 +238,21 @@ public class AppointmentCreate extends HttpServlet {
             data = rs.getInt("count");
         }
         return data;
+    }
+    
+    private String checkFirstAppointment(int id) throws SQLException {
+        pstmt3.setInt(1,id);
+        ResultSet rs = pstmt3.executeQuery();
+        
+        String data = null;
+        if(rs.next()) {
+            data = rs.getString(1);
+        }
+        return data;
+    }
+    
+    private void updateFisrtAppointment(int id) throws SQLException {
+        pstmt4.setInt(1,id);
+        pstmt4.executeUpdate();
     }
 }
