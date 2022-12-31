@@ -122,7 +122,7 @@ public class AuthRegister extends HttpServlet {
                         HttpSession session = request.getSession();
                         session.setAttribute("patient", getPatientData(email,hashPassword));
                         request.setAttribute("successMsgs", "You have signup successfully");
-                        RequestDispatcher view = request.getRequestDispatcher("/patient/home.jsp");
+                        RequestDispatcher view = request.getRequestDispatcher("/patient/book_appointment.jsp");
                         view.forward(request,response);
                     }
                     
