@@ -64,8 +64,8 @@
                         <c:forEach var="result" items="${results.rows}">
                             <div class="card p-5 mb-3">
                                 <div class="card-body">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
+                                    <div class="row">
+                                        <div class="col-4">
                                             <p> Booking ID: <span class="fw-bold text-new"># ${result.aptmt_id}</span></p>
                                             <p> Time: <span class="fw-bold"><fmt:formatDate pattern = "h:mm a" value = "${result.aptmt_time}" /></span></p>
                                             <p> Treatment: <span class="fw-bold">${result.treat_title}</span></p>
@@ -78,7 +78,7 @@
                                                 </c:otherwise>
                                             </c:choose>
                                         </div>
-                                        <div>
+                                        <div class="col-5">
                                             <p> Remark: <span class="fw-bold" >${result.aptmt_remark}</span></p>
                                             <c:choose>
                                                 <c:when test="${result.aptmt_status eq 'Booked'}">
@@ -95,7 +95,7 @@
                                                 </c:otherwise>
                                             </c:choose>
                                         </div>
-                                         <div>
+                                         <div class="col-3">
                                             <h3 class="text-end text-new">
                                                 <span><fmt:formatDate pattern = "dd MMM yyyy" value = "${result.aptmt_date}" /></span>
                                                 <br>
