@@ -23,23 +23,27 @@
             <h2 class="text-new my-4">Book Appointment</h2>
             <div class="card p-5 mb-4">
                 <form method="post" action="${pageContext.servletContext.contextPath}/appointment_add.do">
-                    <div class="mb-4">
-                        <sql:query var="results" dataSource="${myDatasource}">
-                            SELECT * FROM treatments
-                        </sql:query>
+                    <sql:query var="results" dataSource="${myDatasource}">
+                        SELECT * FROM treatments
+                    </sql:query>
+                    <div class="row mb-3">
                         <p>Select Treatment <span class="text-danger">*</span></p>
-                        <c:forEach var = "result" items = "${results.rows}">
-                            <div class="button">
-                                <input type="radio" name="treatment" value="${result.treat_id}" id="cosmetic-outlined" autocomplete="off" checked>
-                                <label for="cosmetic-outlined">${result.treat_title}</label>
-                            </div>
-                        </c:forEach>
+                        <div class="col-12">
+                            <c:forEach var = "result" items = "${results.rows}">
+                                <div class="button">
+                                    <input type="radio" name="treatment" value="${result.treat_id}" id="cosmetic-outlined" autocomplete="off" checked>
+                                    <label for="cosmetic-outlined">${result.treat_title}</label>
+                                </div>
+                            </c:forEach>
+                        </div>
                     </div>
-                    <br><br><br><br><br>
-                    <div class="col-6 my-4">
-                        <div class="form-group">
-                            <p>Remark for Dentist <span class="text-danger">*</span></p>
-                            <textarea class="form-control" name="remark" rows="4" placeholder="Example: My wisdom tooth is pushing my front teeth."></textarea>
+
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <p>Remark for Dentist <span class="text-danger">*</span></p>
+                                <textarea class="form-control" name="remark" rows="4" placeholder="Example: My wisdom tooth is pushing my front teeth."></textarea>
+                            </div>
                         </div>
                     </div>
 
