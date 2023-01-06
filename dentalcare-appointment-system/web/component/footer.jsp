@@ -10,7 +10,7 @@
             <div class="col-md-4 col-lg-4 col-xl-4 mx-auto mt-3 pe-5">
                 <p class="fw-bold text-uppercase mb-4 text-light">Locate Us</p>
                 <p>Universiti Teknologi Mara (UiTM) Jalan Ilmu 1/1, 40450, Shah Alam, Selangor</p><br />
-                <p>&copy; 2022 Dental Care</p>
+                <small>&copy; 2023 Dental Care (syhrzkwn.dev). All Rights Reserved.</small>
             </div>
             <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mt-3 px-5">
                 <p class="fw-bold text-uppercase mb-4 text-light">Operating Hour</p>
