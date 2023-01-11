@@ -20,15 +20,57 @@
             <!-- Error & Success message -->
             <%@ include file="/admin/component/error_success_msg.jsp" %>
             
-            <h2 class="text-new my-4">Book Appointment</h2>
+            <sql:query var="results" dataSource="${myDatasource}">
+                SELECT * FROM treatments
+            </sql:query>
+            
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="text-new my-4">Book Appointment</h2>
+                <div>
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-link link-new" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                        Don't know which treatment for you?
+                    </button>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Treatment Details</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <c:forEach var = "result" items = "${results.rows}">
+                                        <div class="accordion" id="accordionExample">
+                                            <div class="accordion-item">
+                                                <h2 class="accordion-header" id="heading${result.treat_id}">
+                                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${result.treat_id}" aria-expanded="false" aria-controls="collapse${result.treat_id}">
+                                                        ${result.treat_title}
+                                                    </button>
+                                                </h2>
+                                                <div id="collapse${result.treat_id}" class="accordion-collapse collapse show" aria-labelledby="heading${result.treat_id}" data-bs-parent="#accordionExample">
+                                                    <div class="accordion-body">
+                                                        ${result.treat_desc}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </c:forEach>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="card p-5 mb-4">
                 <form method="post" action="${pageContext.servletContext.contextPath}/appointment_add.do">
-                    <sql:query var="results" dataSource="${myDatasource}">
-                        SELECT * FROM treatments
-                    </sql:query>
                     <div class="row mb-3">
-                        <p>Select Treatment <span class="text-danger">*</span></p>
                         <div class="col-12">
+                            <p>Select Treatment <span class="text-danger">*</span></p>                            
                             <c:forEach var = "result" items = "${results.rows}">
                                 <div class="button">
                                     <input type="radio" name="treatment" value="${result.treat_id}" id="cosmetic-outlined" autocomplete="off" checked>
