@@ -1,7 +1,7 @@
 <%-- 
-    Document   : appointment
-    Created on : Dec 4, 2022, 3:33:35 PM
-    Author     : syahir
+    Document   : appointment_history
+    Created on : Jan 11, 2023, 8:24:27 PM
+    Author     : Syahir
 --%>
 <%@ taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -26,13 +26,6 @@
         <main class="container py-4">
             <!-- Error & Success message -->
             <%@ include file="/admin/component/error_success_msg.jsp" %>
-                        
-            <div class="d-flex justify-content-between mt-5 mb-4">
-                <c:forEach var="result" items="${results.rows}">
-                    <h1 class="text-capitalize">Hi, ${result.patient_firstname} ${result.patient_lastname}!</h1>
-                </c:forEach>
-                <a href="${pageContext.servletContext.contextPath}/patient/book_appointment.jsp" class="btn btn-new-1 bg-new text-light py-3 px-4 rounded-pill">Book Appointment</a>
-            </div>
             
             <div class="py-4">
                 <sql:query var="results" dataSource="${myDatasource}">
@@ -44,20 +37,20 @@
                     JOIN treatments ON appointments.treat_id = treatments.treat_id
                     JOIN patients ON appointments.patient_id = patients.patient_id
                     JOIN dentists ON appointments.dentist_id = dentists.dentist_id
-                    WHERE patients.patient_id = ? AND appointments.aptmt_status != 'Completed'
+                    WHERE patients.patient_id = ? AND appointments.aptmt_status = 'Completed'
                     ORDER BY appointments.aptmt_date DESC, appointments.aptmt_time
                     <sql:param value="${id}"/>
                 </sql:query>
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h3 class="text-new">Your Appointment:</h3>
-                    <a href="${pageContext.servletContext.contextPath}/patient/appointment_history.jsp" class="link-new">Appointment History <i class="bi bi-arrow-right"></i></a>
+                    <h3 class="text-new">Your Appointment History:</h3>
+                    <a href="${pageContext.servletContext.contextPath}/patient/home.jsp" class="link-secondary"><i class="bi bi-arrow-left"></i> Back</a>
                 </div>
                 <c:choose>
                     <c:when test="${empty results.rows}">
                         <div class="card p-5 mb-3">
                             <div class="card-body">
                                 <div class="card-text">
-                                    <p class="text-center">You don't have any booked appointments.</p>
+                                    <p class="text-center">You don't have any booked appointments history.</p>
                                 </div>
                             </div>
                         </div>

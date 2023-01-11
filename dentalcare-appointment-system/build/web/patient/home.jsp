@@ -27,7 +27,7 @@
             <!-- Error & Success message -->
             <%@ include file="/admin/component/error_success_msg.jsp" %>
                         
-            <div class="d-flex justify-content-between my-5">
+            <div class="d-flex justify-content-between mt-5 mb-4">
                 <c:forEach var="result" items="${results.rows}">
                     <h1 class="text-capitalize">Hi, ${result.patient_firstname} ${result.patient_lastname}!</h1>
                 </c:forEach>
@@ -44,12 +44,14 @@
                     JOIN treatments ON appointments.treat_id = treatments.treat_id
                     JOIN patients ON appointments.patient_id = patients.patient_id
                     JOIN dentists ON appointments.dentist_id = dentists.dentist_id
-                    WHERE patients.patient_id = ?
+                    WHERE patients.patient_id = ? AND appointments.aptmt_status != 'Completed'
                     ORDER BY appointments.aptmt_date DESC, appointments.aptmt_time
                     <sql:param value="${id}"/>
                 </sql:query>
-                <h3 class="text-new mb-3">Your Appointment:</h3>
-                
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="text-new">Your Appointment:</h3>
+                    <a href="${pageContext.servletContext.contextPath}/patient/appointment_history.jsp" class="link-new">Appointment History <i class="bi bi-arrow-right"></i></a>
+                </div>
                 <c:choose>
                     <c:when test="${empty results.rows}">
                         <div class="card p-5 mb-3">
