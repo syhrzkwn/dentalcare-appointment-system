@@ -92,7 +92,7 @@
                                                         JOIN treatments ON appointments.treat_id = treatments.treat_id
                                                         JOIN patients ON appointments.patient_id = patients.patient_id
                                                         JOIN dentists ON appointments.dentist_id = dentists.dentist_id
-                                                        ORDER BY appointments.aptmt_date, appointments.aptmt_time
+                                                        ORDER BY appointments.aptmt_date DESC, appointments.aptmt_time
                                                     </sql:query>
                                                     <c:choose>
                                                         <c:when test="${empty results.rows}">
