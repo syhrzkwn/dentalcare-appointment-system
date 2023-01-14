@@ -25,11 +25,11 @@
                     <form method="post" action="${pageContext.servletContext.contextPath}/auth_login.do">
                         <div class="form-floating mb-3">
                             <input type="email" class="form-control" id="email" name="email" placeholder="example@dentalcare.com">
-                            <label for="email">Email Address<span class="text-danger">*</span></label>
+                            <label for="email">Email Address <span class="text-danger">*</span></label>
                         </div>
                         <div class="form-floating mb-4">
                             <input type="password" class="form-control" id="password" name="password" placeholder="Password">
-                            <label for="password">Password<span class="text-danger">*</span></label>
+                            <label for="password">Password <span class="text-danger">*</span></label>
                         </div>
                         <div class="d-grid mb-4 mx-auto">
                             <button class="btn btn-primary py-3 rounded-pill" type="submit">Log In</button>
