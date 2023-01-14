@@ -3,8 +3,11 @@
     Created on : Dec 4, 2022, 6:57:32 PM
     Author     : syahir
 --%>
+<%@page import="java.util.Date"%>
+<%@ taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<% Date date = new java.util.Date(); %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -92,7 +95,8 @@
                     <p>Select Date and Time <span class="text-danger">*</span></p>
                     <div class="row mb-5">
                         <div class="col-6 pe-0">
-                            <input type="date" name="date" class="form-control py-3">
+                            <%java.text.DateFormat df1 = new java.text.SimpleDateFormat("yyyy-MM-dd"); %>
+                            <input type="date" name="date" min="<%= df1.format(date) %>" class="form-control py-3">
                         </div>
                         <div class="col-6">
                             <div class="button">
