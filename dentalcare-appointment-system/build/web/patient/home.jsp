@@ -44,7 +44,7 @@
                     JOIN treatments ON appointments.treat_id = treatments.treat_id
                     JOIN patients ON appointments.patient_id = patients.patient_id
                     JOIN dentists ON appointments.dentist_id = dentists.dentist_id
-                    WHERE patients.patient_id = ? AND appointments.aptmt_status != 'Completed'
+                    WHERE patients.patient_id = ? AND appointments.aptmt_status != 'Completed' AND appointments.aptmt_status != 'Cancelled'
                     ORDER BY appointments.aptmt_date DESC, appointments.aptmt_time
                     <sql:param value="${id}"/>
                 </sql:query>
@@ -93,7 +93,7 @@
                                                     <p>Status: <span class="badge rounded-pill bg-success fs-6">${result.aptmt_status}</span></p>
                                                 </c:when>
                                                 <c:otherwise>
-                                                    <p>Status: <span class="badge rounded-pill bg-dabger fs-6">${result.aptmt_status}</span></p>
+                                                    <p>Status: <span class="badge rounded-pill bg-danger fs-6">${result.aptmt_status}</span></p>
                                                 </c:otherwise>
                                             </c:choose>
                                         </div>
