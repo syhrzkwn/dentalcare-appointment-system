@@ -4,9 +4,9 @@
  */
 package com.dentalcare.controller;
 
+import com.dentalcare.util.DBConnection;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -115,16 +115,10 @@ public class AccountEmailUpdate extends HttpServlet {
 
     //connect with db and query to run
     private void initializeJdbc() {
-        try {
-            //declare driver and connection string
-            String driver = "org.apache.derby.jdbc.ClientDriver";
-            String connectionString = "jdbc:derby://localhost:1527/DentalcareDB;create=true;user=app;password=app";
-            
-            //load the driver
-            Class.forName(driver);
-            
-            //connect to the database
-            Connection conn = DriverManager.getConnection(connectionString);
+        try {            
+
+            //connect to database
+            Connection conn = DBConnection.createConnection();
             
             //check email exists in db query
             pstmt1 = conn.prepareStatement(
@@ -136,7 +130,7 @@ public class AccountEmailUpdate extends HttpServlet {
              "UPDATE staffs SET staff_email=? WHERE staff_id=?"
             );
             
-        } catch (ClassNotFoundException | SQLException ex) {
+        } catch (SQLException ex) {
         }
     }
     

@@ -4,11 +4,12 @@
  */
 package com.dentalcare.model;
 
+import java.io.Serializable;
 /**
  *
  * @author syahir
  */
-public class Patient extends User {
+public class Patient extends User implements Serializable {
     
     //constructor
     public Patient() {

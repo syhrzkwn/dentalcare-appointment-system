@@ -5,6 +5,7 @@ package com.dentalcare.controller;
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
+import com.dentalcare.util.DBConnection;
 import com.dentalcare.model.Patient;
 import com.dentalcare.model.Dentist;
 import com.dentalcare.model.Staff;
@@ -217,15 +218,9 @@ public class AuthLogin extends HttpServlet {
     //connect with db and query to run
     private void initializeJdbc() {
         try {
-            //declare driver and connection string
-            String driver = "org.apache.derby.jdbc.ClientDriver";
-            String connectionString = "jdbc:derby://localhost:1527/DentalcareDB;create=true;user=app;password=app";
-            
-            //load the driver
-            Class.forName(driver);
             
             //connect to the database
-            Connection conn = DriverManager.getConnection(connectionString);
+            Connection conn = DBConnection.createConnection();
             
             //sql query to check and get data active patient account
             pstmt1 = conn.prepareStatement(
@@ -242,7 +237,7 @@ public class AuthLogin extends HttpServlet {
              "SELECT * FROM staffs WHERE staff_email=? AND staff_password=?"
             );
             
-        } catch (ClassNotFoundException | SQLException ex) {
+        } catch (SQLException ex) {
         }
     }
     

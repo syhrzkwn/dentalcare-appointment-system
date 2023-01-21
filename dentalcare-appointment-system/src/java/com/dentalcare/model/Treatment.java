@@ -4,11 +4,12 @@
  */
 package com.dentalcare.model;
 
+import java.io.Serializable;
 /**
  *
  * @author syahir
  */
-public class Treatment {
+public class Treatment implements Serializable {
     private int id;
     private String title;
     private String desc;

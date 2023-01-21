@@ -4,9 +4,9 @@
  */
 package com.dentalcare.controller;
 
+import com.dentalcare.util.DBConnection;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import javax.servlet.RequestDispatcher;
@@ -93,22 +93,16 @@ public class TreatmentDelete extends HttpServlet {
     //connect with db and query to run
     private void initializeJdbc() {
         try {
-            //declare driver and connection string
-            String driver = "org.apache.derby.jdbc.ClientDriver";
-            String connectionString = "jdbc:derby://localhost:1527/DentalcareDB;create=true;user=app;password=app";
-            
-            //load the driver
-            Class.forName(driver);
-            
+
             //connect to the database
-            Connection conn = DriverManager.getConnection(connectionString);
+            Connection conn = DBConnection.createConnection();
             
             //delete patient account
             pstmt = conn.prepareStatement(
              "DELETE FROM treatments WHERE treat_id=?"
             );
             
-        } catch (ClassNotFoundException | SQLException ex) {
+        } catch (SQLException ex) {
         }
     }
     

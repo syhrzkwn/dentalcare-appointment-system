@@ -4,11 +4,12 @@
  */
 package com.dentalcare.model;
 
+import java.io.Serializable;
 /**
  *
  * @author syahir
  */
-public class User {
+public class User implements Serializable {
     private int id;
     private String firstname, lastname, phone, email, status;
     

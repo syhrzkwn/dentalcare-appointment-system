@@ -5,9 +5,9 @@ package com.dentalcare.controller;
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
+import com.dentalcare.util.DBConnection;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.LinkedList;
@@ -122,22 +122,16 @@ public class AccountProfileUpdate extends HttpServlet {
     //connect with db and query to run
     private void initializeJdbc() {
         try {
-            //declare driver and connection string
-            String driver = "org.apache.derby.jdbc.ClientDriver";
-            String connectionString = "jdbc:derby://localhost:1527/DentalcareDB;create=true;user=app;password=app";
-            
-            //load the driver
-            Class.forName(driver);
             
             //connect to the database
-            Connection conn = DriverManager.getConnection(connectionString);
+            Connection conn = DBConnection.createConnection();
             
             //update staff profile
             pstmt = conn.prepareStatement(
              "UPDATE staffs SET staff_firstname=?, staff_lastname=?, staff_phone=?, staff_status=? WHERE staff_id=?"
             );
             
-        } catch (ClassNotFoundException | SQLException ex) {
+        } catch (SQLException ex) {
         }
     }
     
