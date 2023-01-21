@@ -97,7 +97,7 @@
                                                 </c:otherwise>
                                             </c:choose>
                                         </div>
-                                         <div class="col-3">
+                                        <div class="col-3">
                                             <h3 class="text-end text-new">
                                                 <span><fmt:formatDate pattern = "dd MMM yyyy" value = "${result.aptmt_date}" /></span>
                                                 <br>
@@ -111,6 +111,9 @@
                         </c:forEach>
                     </c:otherwise>
                 </c:choose>
+            </div>
+            <div class="alert alert-warning text-center">
+                Dear patient, any request for booked appointment date/time changes or cancellation, kindly email us at <a href="mailto:admin@dentalcare.com" class="alert-link">admin@dentalcare.com</a>
             </div>
         </main>
             
