@@ -54,7 +54,7 @@
                                 <div class="card">
                                     <div class="card-header">
                                         <div class="d-flex justify-content-between">
-                                            <h4>View Patient</h4>
+                                            <h4>View Dentist</h4>
                                             <div>
                                                 <a href="${pageContext.servletContext.contextPath}/admin/dentist/index.jsp" class="btn btn-secondary">Back</a>
                                             </div>
