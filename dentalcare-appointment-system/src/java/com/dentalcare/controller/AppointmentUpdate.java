@@ -4,12 +4,9 @@
  */
 package com.dentalcare.controller;
 
-import com.dentalcare.util.DBConnection;
+import com.dentalcare.dao.AppointmentDAO;
+import com.dentalcare.model.Appointment;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import javax.servlet.RequestDispatcher;
@@ -23,13 +20,6 @@ import javax.servlet.http.HttpServletResponse;
  * @author syahir
  */
 public class AppointmentUpdate extends HttpServlet {
-
-    private PreparedStatement pstmt1, pstmt2, pstmt3;
-    
-    @Override
-    public void init() throws ServletException {
-        initializeJdbc();
-    }
     
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -58,8 +48,8 @@ public class AppointmentUpdate extends HttpServlet {
                 case "form1":
                 {                    
                     if(remark.isEmpty()) {
-                            errorMsgs.add("Remark is required");
-                        }
+                        errorMsgs.add("Remark is required");
+                    }
 
                     if(!errorMsgs.isEmpty()) {
                         request.setAttribute("errorMsgs", errorMsgs);
@@ -68,7 +58,18 @@ public class AppointmentUpdate extends HttpServlet {
                         return;
                     }
 
-                    updateAppointmentAdmin(date, time, status, remark, aptmt_id);
+                    Appointment appointment = new Appointment();
+                    
+                    appointment.setDate(date);
+                    appointment.setTime(time);
+                    appointment.setStatus(status);
+                    appointment.setRemark(remark);
+                    appointment.setId(aptmt_id);
+                    
+                    AppointmentDAO appointmentDAO = new AppointmentDAO();
+                    
+                    appointmentDAO.updateAppointment(appointment);
+                    
                     request.setAttribute("successMsgs", "Appointment details has been updated");
                     RequestDispatcher view = request.getRequestDispatcher("/admin/appointment/edit.jsp?aptmt_id="+aptmt_id);
                     view.forward(request, response);
@@ -77,13 +78,25 @@ public class AppointmentUpdate extends HttpServlet {
                 }
                 case "form2":
                 {
-                    if(isDentistAssigned(date, time, dentist_id) != null) {
+                    Appointment appointment = new Appointment();
+                    
+                    appointment.setDate(date);
+                    appointment.setTime(time);
+                    appointment.setDentistId(dentist_id);
+                    appointment.setId(aptmt_id);
+                    
+                    AppointmentDAO appointmentDAO = new AppointmentDAO();
+                    
+                    String isDentistAssigned = appointmentDAO.isDentistAssigned(appointment);
+                            
+                    if(isDentistAssigned != null) {
                         request.setAttribute("errorMsgs", "The chosen dentist has been assigned for other appointment on selected date and time. Select other dentist.");
                         RequestDispatcher view = request.getRequestDispatcher("/admin/appointment/edit.jsp?aptmt_id="+aptmt_id);
                         view.forward(request, response);
                     }
                     else {
-                        assignDentist(dentist_id, aptmt_id);
+                        appointmentDAO.assignDentist(appointment);
+                        
                         request.setAttribute("successMsgs", "Dentist has been assigned successfully");
                         RequestDispatcher view = request.getRequestDispatcher("/admin/appointment/edit.jsp?aptmt_id="+aptmt_id);
                         view.forward(request, response);
@@ -100,7 +113,7 @@ public class AppointmentUpdate extends HttpServlet {
                 }
             }
 
-        } catch(IOException | SQLException | ServletException ex) {
+        } catch(IOException | ServletException ex) {
         }
     }
 
@@ -142,63 +155,4 @@ public class AppointmentUpdate extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
-        //connect with db and query to run
-    private void initializeJdbc() {
-        try {
-            
-            //connect to the database
-            Connection conn = DBConnection.createConnection();
-            
-            //update appointment data in db query
-            pstmt1 = conn.prepareStatement(
-             "UPDATE appointments SET aptmt_date=?, aptmt_time=?, aptmt_status=?, aptmt_remark=? WHERE aptmt_id=?"
-            );
-            
-            //assign dentist in appointment data in db query
-            pstmt2 = conn.prepareStatement(
-             "UPDATE appointments SET dentist_id=? WHERE aptmt_id=?"
-            );
-            
-            //check the dentist has been assigned for selected date and time query
-            pstmt3 = conn.prepareStatement(
-             "SELECT * FROM appointments WHERE aptmt_date=? AND aptmt_time=? AND dentist_id=? AND aptmt_status != 'Cancelled'"
-            );
-            
-        } catch (SQLException ex) {
-        }
-    }
-    
-    //method for update appointment data - staff
-    private void updateAppointmentAdmin(String date, String time, String status, String remark, int aptmt) throws SQLException {
-        pstmt1.setString(1,date);
-        pstmt1.setString(2,time);
-        pstmt1.setString(3,status);
-        pstmt1.setString(4,remark);
-        pstmt1.setInt(5,aptmt);
-        pstmt1.executeUpdate();
-    }
-    
-    //method for update appointment data - assign dentist
-    private void assignDentist(int dentist, int aptmt) throws SQLException {
-        pstmt2.setInt(1,dentist);
-        pstmt2.setInt(2,aptmt);
-        pstmt2.executeUpdate();
-    }
-    
-    //check if the dentist has been assigned for selected date and time
-    private String isDentistAssigned(String date, String time, int dentist) throws SQLException {
-        pstmt3.setString(1,date);
-        pstmt3.setString(2,time);
-        pstmt3.setInt(3,dentist);
-        ResultSet rs = pstmt3.executeQuery(); //for execute select query
-        
-        if(rs.next()) {
-            String data = rs.getString(1);
-            return data;
-        }
-        else {
-            return null;
-        }
-    }
 }

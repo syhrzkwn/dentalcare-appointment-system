@@ -4,11 +4,9 @@
  */
 package com.dentalcare.controller;
 
-import com.dentalcare.util.DBConnection;
+import com.dentalcare.dao.AppointmentDAO;
+import com.dentalcare.model.Appointment;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -20,13 +18,6 @@ import javax.servlet.http.HttpServletResponse;
  * @author syahir
  */
 public class AppointmentDelete extends HttpServlet {
-
-    private PreparedStatement pstmt;
-    
-    @Override
-    public void init() throws ServletException {
-        initializeJdbc();
-    }
     
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -43,11 +34,18 @@ public class AppointmentDelete extends HttpServlet {
         int id = Integer.parseInt(id_param);
         
         try {
-            deleteAppointment(id);
+            Appointment appointment = new Appointment();
+            
+            appointment.setId(id);
+            
+            AppointmentDAO appointmentDAO = new AppointmentDAO();
+            
+            appointmentDAO.deleteAppointment(appointment);
+            
             request.setAttribute("successMsgs", "Appointment deleted successfully");
             RequestDispatcher view = request.getRequestDispatcher("/admin/appointment/index.jsp");
             view.forward(request,response);
-        } catch(IOException | SQLException | ServletException ex) {
+        } catch(IOException | ServletException ex) {
         }
     }
 
@@ -89,26 +87,4 @@ public class AppointmentDelete extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
-    //connect with db and query to run
-    private void initializeJdbc() {
-        try {
-
-            //connect to the database
-            Connection conn = DBConnection.createConnection();
-            
-            //delete patient account
-            pstmt = conn.prepareStatement(
-             "DELETE FROM appointments WHERE aptmt_id=?"
-            );
-            
-        } catch (SQLException ex) {
-        }
-    }
-    
-    //method to update patient password
-    private void deleteAppointment(int id) throws SQLException {
-        pstmt.setInt(1,id);
-        pstmt.executeUpdate();
-    }
 }

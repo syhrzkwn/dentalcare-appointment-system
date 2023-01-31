@@ -4,12 +4,9 @@
  */
 package com.dentalcare.controller;
 
-import com.dentalcare.util.DBConnection;
+import com.dentalcare.dao.AppointmentDAO;
+import com.dentalcare.model.Appointment;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import javax.servlet.RequestDispatcher;
@@ -23,13 +20,6 @@ import javax.servlet.http.HttpServletResponse;
  * @author syahir
  */
 public class AppointmentCreate extends HttpServlet {
-
-    private PreparedStatement pstmt1, pstmt2, pstmt3, pstmt4;
-    
-    @Override
-    public void init() throws ServletException {
-        initializeJdbc();
-    }
     
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -51,6 +41,7 @@ public class AppointmentCreate extends HttpServlet {
         String treatment_param = request.getParameter("treatment");
         String patient_param = request.getParameter("patient");
         
+        // treatment id and patient id
         int treatment = Integer.parseInt(treatment_param);
         int patient = Integer.parseInt(patient_param);
         
@@ -86,19 +77,39 @@ public class AppointmentCreate extends HttpServlet {
                 {
                     //can book appointment with same date and time up to 3 times only!
                     //start with 0
-                    if(checkDatetime(date, time) >= 3) {
+                    
+                    Appointment appointment = new Appointment();
+                    
+                    appointment.setDate(date);
+                    appointment.setTime(time);
+                    appointment.setPatientId(patient);
+                    
+                    AppointmentDAO appointmentDAO = new AppointmentDAO();
+                    
+                    int checkDatetime = appointmentDAO.checkDatetime(appointment);
+                    
+                    if(checkDatetime >= 3) {
                         request.setAttribute("errorMsgs", "The number of appointments booked on the selected date and time has exceeded the limit");
                         RequestDispatcher view = request.getRequestDispatcher("/patient/book_appointment.jsp");
                         view.forward(request, response);
                     }
                     else {
                         //update patient first time booked status
-                        if(checkFirstAppointment(patient).equals("N")) {
-                            updateFisrtAppointment(patient);
+                        String checkFirstAppointment = appointmentDAO.checkFirstAppointment(appointment);
+                        
+                        if(checkFirstAppointment.equals("N")) {
+                            appointmentDAO.updateFirstAppointment(appointment);
                         }
                         
-                        //store data in db
-                        storeAppointment(date, time, remark, patient, treatment);
+                        Appointment new_aptmt = new Appointment();
+                        
+                        new_aptmt.setDate(date);
+                        new_aptmt.setTime(time);
+                        new_aptmt.setRemark(remark);
+                        new_aptmt.setPatientId(patient);
+                        new_aptmt.setTreatId(treatment);
+                        
+                        appointmentDAO.storeAppointment(new_aptmt);
 
                         request.setAttribute("successMsgs", "Appointment booked successfully");
                         RequestDispatcher view = request.getRequestDispatcher("/patient/home.jsp");
@@ -110,20 +121,40 @@ public class AppointmentCreate extends HttpServlet {
                 {
                     //can book appointment with same date and time up to 3 times only!
                     //start with 0
-                    if(checkDatetime(date, time) >= 3) {
+                    
+                    Appointment appointment = new Appointment();
+                    
+                    appointment.setDate(date);
+                    appointment.setTime(time);
+                    appointment.setPatientId(patient);
+                    
+                    AppointmentDAO appointmentDAO = new AppointmentDAO();
+                    
+                    int checkDatetime = appointmentDAO.checkDatetime(appointment);
+                    
+                    if(checkDatetime >= 3) {
                         request.setAttribute("errorMsgs", "The number of appointments booked on the selected date and time has exceeded the limit");
                         RequestDispatcher view = request.getRequestDispatcher("/admin/appointment/add.jsp");
                         view.forward(request, response);
                     }
                     else {
                         //update patient first time booked status
-                        if(checkFirstAppointment(patient).equals("N")) {
-                            updateFisrtAppointment(patient);
+                        String checkFirstAppointment = appointmentDAO.checkFirstAppointment(appointment);
+                        
+                        if(checkFirstAppointment.equals("N")) {
+                            appointmentDAO.updateFirstAppointment(appointment);
                         }
                         
-                        //store data in db
-                        storeAppointment(date, time, remark, patient, treatment);
-
+                        Appointment new_aptmt = new Appointment();
+                        
+                        new_aptmt.setDate(date);
+                        new_aptmt.setTime(time);
+                        new_aptmt.setRemark(remark);
+                        new_aptmt.setPatientId(patient);
+                        new_aptmt.setTreatId(treatment);
+                        
+                        appointmentDAO.storeAppointment(new_aptmt);
+                        
                         request.setAttribute("successMsgs", "Appointment booked successfully");
                         RequestDispatcher view = request.getRequestDispatcher("/admin/appointment/add.jsp");
                         view.forward(request,response);
@@ -138,7 +169,7 @@ public class AppointmentCreate extends HttpServlet {
                     break;
                 }
             }
-        } catch(IOException | SQLException | ServletException ex) {
+        } catch(IOException | ServletException ex) {
         }
     }
 
@@ -180,73 +211,4 @@ public class AppointmentCreate extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
-    //connect with db and query to run
-    private void initializeJdbc() {
-        try {
-            
-            //connect to the database
-            Connection conn = DBConnection.createConnection();
-            
-            //store appointment data in db query
-            pstmt1 = conn.prepareStatement(
-             "INSERT INTO appointments(aptmt_date, aptmt_time, aptmt_remark, patient_id, treat_id) VALUES(?,?,?,?,?)"
-            );
-            
-            //check count appointment date and time choosen
-            pstmt2 = conn.prepareStatement(
-             "SELECT COUNT(*) AS count FROM appointments WHERE aptmt_date=? AND aptmt_time=? AND aptmt_status != 'Cancelled'"
-            );
-            
-            //check the patient already make a first time book or not
-            pstmt3 = conn.prepareStatement(
-             "SELECT first_time_booked FROM patients WHERE patient_id=?"
-            );
-            
-            //update the patient first time book
-            pstmt4 = conn.prepareStatement(
-             "UPDATE patients SET first_time_booked='Y' WHERE patient_id=?"
-            );
-            
-        } catch (SQLException ex) {
-        }
-    }
-    
-    //method for store appointment data
-    private void storeAppointment(String date, String time, String remark, int patient, int treat) throws SQLException {
-        pstmt1.setString(1,date);
-        pstmt1.setString(2,time);
-        pstmt1.setString(3,remark);
-        pstmt1.setInt(4,patient);
-        pstmt1.setInt(5,treat);
-        pstmt1.executeUpdate();
-    }
-    
-    private int checkDatetime(String date, String time) throws SQLException {
-        pstmt2.setString(1,date);
-        pstmt2.setString(2,time);
-        ResultSet rs = pstmt2.executeQuery(); //for execute select query
-        
-        int data = 0;
-        if(rs.next()) {
-            data = rs.getInt("count");
-        }
-        return data;
-    }
-    
-    private String checkFirstAppointment(int id) throws SQLException {
-        pstmt3.setInt(1,id);
-        ResultSet rs = pstmt3.executeQuery();
-        
-        String data = null;
-        if(rs.next()) {
-            data = rs.getString(1);
-        }
-        return data;
-    }
-    
-    private void updateFisrtAppointment(int id) throws SQLException {
-        pstmt4.setInt(1,id);
-        pstmt4.executeUpdate();
-    }
 }
