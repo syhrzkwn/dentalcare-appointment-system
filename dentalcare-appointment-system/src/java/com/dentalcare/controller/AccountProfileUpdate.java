@@ -5,11 +5,9 @@ package com.dentalcare.controller;
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-import com.dentalcare.util.DBConnection;
+import com.dentalcare.dao.StaffDAO;
+import com.dentalcare.model.Staff;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import javax.servlet.RequestDispatcher;
@@ -24,13 +22,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class AccountProfileUpdate extends HttpServlet {
 
-    private PreparedStatement pstmt;
-    
-    @Override
-    public void init() throws ServletException {
-        initializeJdbc();
-    }
-    
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -71,12 +62,23 @@ public class AccountProfileUpdate extends HttpServlet {
                 return;
             }
 
-            updateProfile(firstname, lastname, phone, status, id);
+            Staff staff = new Staff();
+            
+            staff.setFirstName(firstname);
+            staff.setLastName(lastname);
+            staff.setPhone(phone);
+            staff.setStatus(status);
+            staff.setId(id);
+            
+            StaffDAO staffDAO = new StaffDAO();
+            
+            staffDAO.updateProfile(staff);
+            
             request.setAttribute("successMsgs", "Profile has been updated");
             RequestDispatcher view = request.getRequestDispatcher("/admin/account.jsp");
             view.forward(request, response);
 
-        } catch (IOException | SQLException | ServletException ex) {
+        } catch (IOException | ServletException ex) {
         }
     }
 
@@ -118,30 +120,4 @@ public class AccountProfileUpdate extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
-    //connect with db and query to run
-    private void initializeJdbc() {
-        try {
-            
-            //connect to the database
-            Connection conn = DBConnection.createConnection();
-            
-            //update staff profile
-            pstmt = conn.prepareStatement(
-             "UPDATE staffs SET staff_firstname=?, staff_lastname=?, staff_phone=?, staff_status=? WHERE staff_id=?"
-            );
-            
-        } catch (SQLException ex) {
-        }
-    }
-    
-    //method to update staff profile
-    private void updateProfile(String firstname, String lastname, String phone, String status, int id) throws SQLException {
-        pstmt.setString(1,firstname);
-        pstmt.setString(2,lastname);
-        pstmt.setString(3,phone);
-        pstmt.setString(4, status);
-        pstmt.setInt(5,id);
-        pstmt.executeUpdate();
-    }
 }

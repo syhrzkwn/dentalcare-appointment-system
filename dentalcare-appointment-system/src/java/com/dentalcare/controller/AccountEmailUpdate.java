@@ -4,12 +4,9 @@
  */
 package com.dentalcare.controller;
 
-import com.dentalcare.util.DBConnection;
+import com.dentalcare.dao.StaffDAO;
+import com.dentalcare.model.Staff;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import javax.servlet.RequestDispatcher;
@@ -23,13 +20,6 @@ import javax.servlet.http.HttpServletResponse;
  * @author syahir
  */
 public class AccountEmailUpdate extends HttpServlet {
-
-    private PreparedStatement pstmt1, pstmt2;
-    
-    @Override
-    public void init() throws ServletException {
-        initializeJdbc();
-    }
     
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -50,11 +40,19 @@ public class AccountEmailUpdate extends HttpServlet {
         int id = Integer.parseInt(id_param);
 
         try {
+            Staff staff = new Staff();
+            
+            staff.setEmail(email);
+            
+            StaffDAO staffDAO = new StaffDAO();
+            
             if(email.isEmpty()) {
                 errorMsgs.add("Email is required");
             }
 
-            if(isEmailExists(email) != null) {
+            staff = staffDAO.isEmailExist(staff);
+            
+            if(staff != null) {
                 errorMsgs.add("Email address is already registered with other account");
             }
             
@@ -65,12 +63,18 @@ public class AccountEmailUpdate extends HttpServlet {
                 return;
             }
             
-            updateEmail(email, id);
+            Staff new_staff = new Staff();
+            
+            new_staff.setEmail(email);
+            new_staff.setId(id);
+            
+            staffDAO.updateEmail(new_staff);
+            
             request.setAttribute("successMsgs", "Email has been updated");
             RequestDispatcher view = request.getRequestDispatcher("/admin/account.jsp");
             view.forward(request, response);
             
-        } catch(IOException | SQLException | ServletException ex) {
+        } catch(IOException | ServletException ex) {
         }
     }
 
@@ -112,47 +116,4 @@ public class AccountEmailUpdate extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
-    //connect with db and query to run
-    private void initializeJdbc() {
-        try {            
-
-            //connect to database
-            Connection conn = DBConnection.createConnection();
-            
-            //check email exists in db query
-            pstmt1 = conn.prepareStatement(
-             "SELECT * FROM staffs WHERE staff_email=?"
-            );
-            
-            //update staff email
-            pstmt2 = conn.prepareStatement(
-             "UPDATE staffs SET staff_email=? WHERE staff_id=?"
-            );
-            
-        } catch (SQLException ex) {
-        }
-    }
-    
-    //method for email exists checking
-    protected String isEmailExists(String email) throws SQLException {
-        pstmt1.setString(1,email);
-        ResultSet rs = pstmt1.executeQuery(); //for execute select query
-        
-        if(rs.next()) {
-            String data;
-            data = rs.getString(1);
-            return data;
-        }
-        else {
-            return null;
-        }
-    }
-    
-    //method to update staff email
-    private void updateEmail(String email, int id) throws SQLException {
-        pstmt2.setString(1,email);
-        pstmt2.setInt(2,id);
-        pstmt2.executeUpdate();
-    }
 }

@@ -5,12 +5,9 @@ package com.dentalcare.controller;
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-import com.dentalcare.util.DBConnection;
+import com.dentalcare.dao.StaffDAO;
+import com.dentalcare.model.Staff;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import javax.servlet.RequestDispatcher;
@@ -24,13 +21,6 @@ import javax.servlet.http.HttpServletResponse;
  * @author syahir
  */
 public class AccountPasswordUpdate extends HttpServlet {
-
-    private PreparedStatement pstmt1, pstmt2;
-    
-    @Override
-    public void init() throws ServletException {
-        initializeJdbc();
-    }
     
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -80,7 +70,16 @@ public class AccountPasswordUpdate extends HttpServlet {
             //hashing current password to check password in db
             String checkPassword = AuthLogin.doHashing(password);
 
-            if(checkAccount(email, checkPassword) == null) {
+            Staff staff = new Staff();
+            
+            staff.setEmail(email);
+            staff.setPassword(checkPassword);
+            
+            StaffDAO staffDAO = new StaffDAO();
+            
+            staff = staffDAO.authenticateUser(staff);
+            
+            if(staff == null) {
                 request.setAttribute("errorMsgs", "Current password is invalid");
                 RequestDispatcher view = request.getRequestDispatcher("/admin/account.jsp");
                 view.forward(request, response);
@@ -88,12 +87,19 @@ public class AccountPasswordUpdate extends HttpServlet {
             else {
                 //hashing new password to store in db
                 String hashPassword = AuthLogin.doHashing(new_password);
-                updatePassword(hashPassword, id);
+                
+                Staff new_staff = new Staff();
+                
+                new_staff.setPassword(hashPassword);
+                new_staff.setId(id);
+                
+                staffDAO.updatePassword(new_staff);
+                
                 request.setAttribute("successMsgs", "Password has been updated");
                 RequestDispatcher view = request.getRequestDispatcher("/admin/account.jsp");
                 view.forward(request, response);
             }
-        } catch(IOException | SQLException | ServletException ex) {
+        } catch(IOException | ServletException ex) {
         }
     }
 
@@ -135,48 +141,4 @@ public class AccountPasswordUpdate extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
-    //connect with db and query to run
-    private void initializeJdbc() {
-        try {
-            
-            //connect to the database
-            Connection conn = DBConnection.createConnection();
-            
-            //update admin account password
-            pstmt1 = conn.prepareStatement(
-             "UPDATE staffs SET staff_password=? WHERE staff_id=?"
-            );
-            
-            //sql query to check and get data admin account
-            pstmt2 = conn.prepareStatement(
-             "SELECT * FROM staffs WHERE staff_email=? AND staff_password=?"
-            );
-            
-        } catch (SQLException ex) {
-        }
-    }
-    
-    //method to update account password
-    private void updatePassword(String password, int id) throws SQLException {
-        pstmt1.setString(1,password);
-        pstmt1.setInt(2,id);
-        pstmt1.executeUpdate();
-    }
-    
-    //method for check and get data admin account
-    private String checkAccount(String email, String password) throws SQLException {
-        pstmt2.setString(1,email);
-        pstmt2.setString(2,password);
-        ResultSet rs = pstmt2.executeQuery(); //for execute select query
-        
-        if(rs.next()) {
-            String data;
-            data = rs.getString(1);
-            return data;
-        }
-        else {
-            return null;
-        }
-    }
 }
