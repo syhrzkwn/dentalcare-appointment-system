@@ -31,14 +31,15 @@
                 <sql:query var="results" dataSource="${myDatasource}">
                     SELECT appointments.aptmt_id, appointments.aptmt_date, appointments.aptmt_time, appointments.aptmt_status, appointments.aptmt_remark,
                     treatments.treat_title,
-                    patients.patient_firstname, patients.patient_lastname,
+                    patients.patient_firstname, patients.patient_lastname, patients.patient_id,
                     dentists.dentist_firstname, dentists.dentist_lastname, dentists.dentist_id
                     FROM appointments
                     JOIN treatments ON appointments.treat_id = treatments.treat_id
                     JOIN patients ON appointments.patient_id = patients.patient_id
                     JOIN dentists ON appointments.dentist_id = dentists.dentist_id
-                    WHERE patients.patient_id = ? AND appointments.aptmt_status = 'Completed' OR appointments.aptmt_status = 'Cancelled'
+                    WHERE patients.patient_id = ? AND appointments.aptmt_status = 'Completed' OR patients.patient_id = ? AND appointments.aptmt_status = 'Cancelled'
                     ORDER BY appointments.aptmt_date DESC, appointments.aptmt_time
+                    <sql:param value="${id}"/>
                     <sql:param value="${id}"/>
                 </sql:query>
                 <div class="d-flex justify-content-between align-items-center mb-3">
