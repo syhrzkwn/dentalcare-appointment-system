@@ -4,12 +4,9 @@
  */
 package com.dentalcare.controller;
 
-import com.dentalcare.util.DBConnection;
+import com.dentalcare.dao.PatientDAO;
+import com.dentalcare.model.Patient;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import javax.servlet.RequestDispatcher;
@@ -23,13 +20,6 @@ import javax.servlet.http.HttpServletResponse;
  * @author syahir
  */
 public class PatientAccountEmailUpdate extends HttpServlet {
-
-    private PreparedStatement pstmt1, pstmt2;
-    
-    @Override
-    public void init() throws ServletException {
-        initializeJdbc();
-    }
     
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -49,11 +39,20 @@ public class PatientAccountEmailUpdate extends HttpServlet {
         int id = Integer.parseInt(id_param);
 
         try {
+            Patient patient = new Patient();
+            
+            patient.setEmail(email);
+            patient.setId(id);
+            
+            PatientDAO patientDAO = new PatientDAO();
+            
             if(email.isEmpty()) {
                 errorMsgs.add("Email is required");
             }
 
-            if(isEmailExists(email) != null) {
+            patient = patientDAO.isEmailExist(patient);
+            
+            if(patient != null) {
                 errorMsgs.add("Email address is already registered with other account");
             }
             
@@ -64,12 +63,18 @@ public class PatientAccountEmailUpdate extends HttpServlet {
                 return;
             }
             
-            updateEmail(email, id);
+            Patient new_patient = new Patient();
+            
+            new_patient.setEmail(email);
+            new_patient.setId(id);
+            
+            patientDAO.updateEmail(new_patient);
+            
             request.setAttribute("successMsgs", "Email has been updated");
             RequestDispatcher view = request.getRequestDispatcher("/patient/account.jsp");
             view.forward(request, response);
             
-        } catch(IOException | SQLException | ServletException ex) {
+        } catch(IOException | ServletException ex) {
         }
     }
 
@@ -111,47 +116,4 @@ public class PatientAccountEmailUpdate extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
-    //connect with db and query to run
-    private void initializeJdbc() {
-        try {
-
-            //connect to the database
-            Connection conn = DBConnection.createConnection();
-            
-            //check email exists in db query
-            pstmt1 = conn.prepareStatement(
-             "SELECT * FROM patients WHERE patient_email=?"
-            );
-            
-            //update staff email
-            pstmt2 = conn.prepareStatement(
-             "UPDATE patients SET patient_email=? WHERE patient_id=?"
-            );
-            
-        } catch (SQLException ex) {
-        }
-    }
-    
-    //method for email exists checking
-    protected String isEmailExists(String email) throws SQLException {
-        pstmt1.setString(1,email);
-        ResultSet rs = pstmt1.executeQuery(); //for execute select query
-        
-        if(rs.next()) {
-            String data;
-            data = rs.getString(1);
-            return data;
-        }
-        else {
-            return null;
-        }
-    }
-    
-    //method to update patient email
-    private void updateEmail(String email, int id) throws SQLException {
-        pstmt2.setString(1,email);
-        pstmt2.setInt(2,id);
-        pstmt2.executeUpdate();
-    }
 }

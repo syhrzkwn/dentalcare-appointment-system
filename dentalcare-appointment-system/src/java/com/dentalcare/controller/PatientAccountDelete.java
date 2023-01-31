@@ -4,12 +4,9 @@
  */
 package com.dentalcare.controller;
 
-import com.dentalcare.util.DBConnection;
+import com.dentalcare.dao.PatientDAO;
+import com.dentalcare.model.Patient;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import javax.servlet.RequestDispatcher;
@@ -23,13 +20,6 @@ import javax.servlet.http.HttpServletResponse;
  * @author syahir
  */
 public class PatientAccountDelete extends HttpServlet {
-
-    private PreparedStatement pstmt1, pstmt2;
-    
-    @Override
-    public void init() throws ServletException {
-        initializeJdbc();
-    }
     
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -49,27 +39,45 @@ public class PatientAccountDelete extends HttpServlet {
         int id = Integer.parseInt(id_param);
                 
         try {
+            Patient patient = new Patient();
+            
+            patient.setEmail(email_for_delete);
+            patient.setId(id);
+            
+            PatientDAO patientDAO = new PatientDAO();
+            
             if(email_for_delete.isEmpty()) {
                 errorMsgs.add("Email is required");
             }
-
-            if(isEmailExists(email_for_delete) == null) {
-                errorMsgs.add("Opps! Email doesn't match. Please re-type the patient email");
-            }
-
+            
             if(!errorMsgs.isEmpty()) {
                 request.setAttribute("errorMsgs", errorMsgs);
                 RequestDispatcher view = request.getRequestDispatcher("/patient/account.jsp");
                 view.forward(request, response);
                 return;
             }
-
-            deleteAccount(email_for_delete, id);
-            request.setAttribute("successMsgs", "Your account has been deleted");
-            RequestDispatcher view = request.getRequestDispatcher("/login.jsp");
-            view.forward(request, response);
             
-        } catch (IOException | SQLException | ServletException ex) {
+            patient = patientDAO.checkEmailForDelete(patient);
+            
+            if(patient == null) {
+                request.setAttribute("errorMsgs", "Opps! Email doesn't match. Please re-type the patient email");
+                RequestDispatcher view = request.getRequestDispatcher("/patient/account.jsp");
+                view.forward(request, response);
+            }
+            else {
+                Patient new_patient = new Patient();
+
+                new_patient.setEmail(email_for_delete);
+                new_patient.setId(id);
+
+                patientDAO.deleteUser(new_patient);
+
+                request.setAttribute("successMsgs", "Your account has been deleted");
+                RequestDispatcher view = request.getRequestDispatcher("/login.jsp");
+                view.forward(request, response);
+            }
+            
+        } catch (IOException | ServletException ex) {
         }
     }
 
@@ -111,47 +119,4 @@ public class PatientAccountDelete extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
-    //connect with db and query to run
-    private void initializeJdbc() {
-        try {
-
-            //connect to the database
-            Connection conn = DBConnection.createConnection();
-
-            //check email exists in db query
-            pstmt1 = conn.prepareStatement(
-             "SELECT patient_email FROM patients WHERE patient_email=?"
-            );
-            
-            //delete patient account
-            pstmt2 = conn.prepareStatement(
-             "DELETE FROM patients WHERE patient_email=? AND patient_id=?"
-            );
-            
-        } catch (SQLException ex) {
-        }
-    }
-    
-    //method for email exists checking
-    protected String isEmailExists(String email) throws SQLException {
-        pstmt1.setString(1,email);
-        ResultSet rs = pstmt1.executeQuery(); //for execute select query
-        
-        if(rs.next()) {
-            String data;
-            data = rs.getString("patient_email");
-            return data;
-        }
-        else {
-            return null;
-        }
-    }
-    
-    //method to update patient password
-    private void deleteAccount(String email, int id) throws SQLException {
-        pstmt2.setString(1,email);
-        pstmt2.setInt(2,id);
-        pstmt2.executeUpdate();
-    }
 }

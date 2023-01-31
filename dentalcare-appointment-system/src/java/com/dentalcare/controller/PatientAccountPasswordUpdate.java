@@ -4,12 +4,9 @@
  */
 package com.dentalcare.controller;
 
-import com.dentalcare.util.DBConnection;
+import com.dentalcare.dao.PatientDAO;
+import com.dentalcare.model.Patient;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import javax.servlet.RequestDispatcher;
@@ -23,13 +20,6 @@ import javax.servlet.http.HttpServletResponse;
  * @author syahir
  */
 public class PatientAccountPasswordUpdate extends HttpServlet {
-
-    private PreparedStatement pstmt1, pstmt2;
-    
-    @Override
-    public void init() throws ServletException {
-        initializeJdbc();
-    }
     
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -78,7 +68,16 @@ public class PatientAccountPasswordUpdate extends HttpServlet {
             //hashing current password to check password in db
             String checkPassword = AuthLogin.doHashing(password);
 
-            if(checkAccount(email, checkPassword) == null) {
+            Patient patient = new Patient();
+            
+            patient.setEmail(email);
+            patient.setPassword(checkPassword);
+            
+            PatientDAO patientDAO = new PatientDAO();
+            
+            patient = patientDAO.authenticateUser(patient);
+            
+            if(patient == null) {
                 request.setAttribute("errorMsgs", "Current password is invalid");
                 RequestDispatcher view = request.getRequestDispatcher("/patient/account.jsp");
                 view.forward(request, response);
@@ -86,12 +85,19 @@ public class PatientAccountPasswordUpdate extends HttpServlet {
             else {
                 //hashing new password to store in db
                 String hashPassword = AuthLogin.doHashing(new_password);
-                updatePassword(hashPassword, id);
+                
+                Patient new_patient = new Patient();
+                
+                new_patient.setId(id);
+                new_patient.setPassword(hashPassword);
+                
+                patientDAO.updatePassword(new_patient);
+                
                 request.setAttribute("successMsgs", "Password has been updated");
                 RequestDispatcher view = request.getRequestDispatcher("/patient/account.jsp");
                 view.forward(request, response);
             }
-        } catch(IOException | SQLException | ServletException ex) {
+        } catch(IOException | ServletException ex) {
         }
     }
 
@@ -133,48 +139,4 @@ public class PatientAccountPasswordUpdate extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
-    //connect with db and query to run
-    private void initializeJdbc() {
-        try {
-
-            //connect to the database
-            Connection conn = DBConnection.createConnection();
-            
-            //update admin account password
-            pstmt1 = conn.prepareStatement(
-             "UPDATE patients SET patient_password=? WHERE patient_id=?"
-            );
-            
-            //sql query to check and get data admin account
-            pstmt2 = conn.prepareStatement(
-             "SELECT * FROM patients WHERE patient_email=? AND patient_password=?"
-            );
-            
-        } catch (SQLException ex) {
-        }
-    }
-    
-    //method to update account password
-    private void updatePassword(String password, int id) throws SQLException {
-        pstmt1.setString(1,password);
-        pstmt1.setInt(2,id);
-        pstmt1.executeUpdate();
-    }
-    
-    //method for check and get data admin account
-    private String checkAccount(String email, String password) throws SQLException {
-        pstmt2.setString(1,email);
-        pstmt2.setString(2,password);
-        ResultSet rs = pstmt2.executeQuery(); //for execute select query
-        
-        if(rs.next()) {
-            String data;
-            data = rs.getString(1);
-            return data;
-        }
-        else {
-            return null;
-        }
-    }
 }

@@ -4,12 +4,9 @@
  */
 package com.dentalcare.controller;
 
-import com.dentalcare.util.DBConnection;
+import com.dentalcare.dao.PatientDAO;
+import com.dentalcare.model.Patient;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import javax.servlet.RequestDispatcher;
@@ -23,13 +20,6 @@ import javax.servlet.http.HttpServletResponse;
  * @author syahir
  */
 public class PatientUpdate extends HttpServlet {
-
-    private PreparedStatement pstmt1, pstmt2, pstmt3, pstmt4, pstmt5;
-    
-    @Override
-    public void init() throws ServletException {
-        initializeJdbc();
-    }
     
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -78,8 +68,19 @@ public class PatientUpdate extends HttpServlet {
                         view.forward(request, response);
                         return;
                     }
-
-                    updateProfile(firstname, lastname, phone, status, id);
+                    
+                    Patient patient = new Patient();
+                    
+                    patient.setFirstName(firstname);
+                    patient.setLastName(lastname);
+                    patient.setPhone(phone);
+                    patient.setStatus(status);
+                    patient.setId(id);
+                    
+                    PatientDAO patientDAO = new PatientDAO();
+                    
+                    patientDAO.updateProfileInAdmin(patient);
+                    
                     request.setAttribute("successMsgs", "Profile has been updated");
                     RequestDispatcher view = request.getRequestDispatcher("/admin/patient/edit.jsp?patient_id="+id);
                     view.forward(request, response);
@@ -91,7 +92,15 @@ public class PatientUpdate extends HttpServlet {
                         errorMsgs.add("Email is required");
                     }
 
-                    if(isEmailExists(email) != null) {
+                    Patient patient = new Patient();
+                    
+                    patient.setEmail(email);
+                    
+                    PatientDAO patientDAO = new PatientDAO();
+                    
+                    patient = patientDAO.isEmailExist(patient);
+                    
+                    if(patient != null) {
                         errorMsgs.add("Email address is already registered with other account");
                     }
 
@@ -102,7 +111,13 @@ public class PatientUpdate extends HttpServlet {
                         return;
                     }
 
-                    updateEmail(email, id);
+                    Patient new_patient = new Patient();
+                    
+                    new_patient.setEmail(email);
+                    new_patient.setId(id);
+                    
+                    patientDAO.updateEmail(new_patient);
+                    
                     request.setAttribute("successMsgs", "Email has been updated");
                     RequestDispatcher view = request.getRequestDispatcher("/admin/patient/edit.jsp?patient_id="+id);
                     view.forward(request, response);
@@ -131,7 +146,16 @@ public class PatientUpdate extends HttpServlet {
 
                     //hashing current password to check password in db
                     String hashPassword = AuthLogin.doHashing(new_password);
-                    updatePassword(hashPassword, id);
+                    
+                    Patient patient = new Patient();
+                    
+                    patient.setPassword(hashPassword);
+                    patient.setId(id);
+                    
+                    PatientDAO patientDAO = new PatientDAO();
+                    
+                    patientDAO.updatePassword(patient);
+                    
                     request.setAttribute("successMsgs", "Password has been updated");
                     RequestDispatcher view = request.getRequestDispatcher("/admin/patient/edit.jsp?patient_id="+id);
                     view.forward(request, response);
@@ -143,7 +167,16 @@ public class PatientUpdate extends HttpServlet {
                         errorMsgs.add("Email is required");
                     }
                     
-                    if(isEmailExists(email_for_delete) == null) {
+                    Patient patient = new Patient();
+                    
+                    patient.setEmail(email_for_delete);
+                    patient.setId(id);
+                    
+                    PatientDAO patientDAO = new PatientDAO();
+                    
+                    patient = patientDAO.checkEmailForDelete(patient);
+                    
+                    if(patient == null) {
                         errorMsgs.add("Opps! Email doesn't match. Please re-type the patient email");
                     }
 
@@ -154,7 +187,13 @@ public class PatientUpdate extends HttpServlet {
                         return;
                     }
                     
-                    deleteAccount(email_for_delete, id);
+                    Patient new_patient = new Patient();
+
+                    new_patient.setEmail(email_for_delete);
+                    new_patient.setId(id);
+
+                    patientDAO.deleteUser(new_patient);
+                
                     request.setAttribute("successMsgs", "Patient account has been deleted");
                     RequestDispatcher view = request.getRequestDispatcher("/admin/patient/index.jsp");
                     view.forward(request, response);
@@ -169,7 +208,7 @@ public class PatientUpdate extends HttpServlet {
                 }
             }
             
-        } catch(IOException | SQLException | ServletException ex) {
+        } catch(IOException | ServletException ex) {
         }
     }
 
@@ -211,86 +250,4 @@ public class PatientUpdate extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
-    //connect with db and query to run
-    private void initializeJdbc() {
-        try {
-            
-            //connect to the database
-            Connection conn = DBConnection.createConnection();
-            
-            //update patient profile
-            pstmt1 = conn.prepareStatement(
-             "UPDATE patients SET patient_firstname=?, patient_lastname=?, patient_phone=?, patient_status=? WHERE patient_id=?"
-            );
-            
-            //check email exists in db query
-            pstmt2 = conn.prepareStatement(
-             "SELECT patient_email FROM patients WHERE patient_email=?"
-            );
-            
-            //update patient email
-            pstmt3 = conn.prepareStatement(
-             "UPDATE patients SET patient_email=? WHERE patient_id=?"
-            );
-            
-            //update patient password
-            pstmt4 = conn.prepareStatement(
-             "UPDATE patients SET patient_password=? WHERE patient_id=?"
-            );
-            
-            //delete patient account
-            pstmt5 = conn.prepareStatement(
-             "DELETE FROM patients WHERE patient_email=? AND patient_id=?"
-            );
-            
-        } catch (SQLException ex) {
-        }
-    }
-    
-    //method to update account profile
-    private void updateProfile(String firstname, String lastname, String phone, String status, int id) throws SQLException {
-        pstmt1.setString(1,firstname);
-        pstmt1.setString(2,lastname);
-        pstmt1.setString(3,phone);
-        pstmt1.setString(4, status);
-        pstmt1.setInt(5,id);
-        pstmt1.executeUpdate();
-    }
-    
-    //method for email exists checking
-    protected String isEmailExists(String email) throws SQLException {
-        pstmt2.setString(1,email);
-        ResultSet rs = pstmt2.executeQuery(); //for execute select query
-        
-        if(rs.next()) {
-            String data;
-            data = rs.getString("patient_email");
-            return data;
-        }
-        else {
-            return null;
-        }
-    }
-    
-    //method to update patient email
-    private void updateEmail(String email, int id) throws SQLException {
-        pstmt3.setString(1,email);
-        pstmt3.setInt(2,id);
-        pstmt3.executeUpdate();
-    }
-    
-    //method to update patient password
-    private void updatePassword(String password, int id) throws SQLException {
-        pstmt4.setString(1,password);
-        pstmt4.setInt(2,id);
-        pstmt4.executeUpdate();
-    }
-    
-    //method to update patient password
-    private void deleteAccount(String email, int id) throws SQLException {
-        pstmt5.setString(1,email);
-        pstmt5.setInt(2,id);
-        pstmt5.executeUpdate();
-    }
 }

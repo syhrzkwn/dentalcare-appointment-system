@@ -4,11 +4,9 @@
  */
 package com.dentalcare.controller;
 
-import com.dentalcare.util.DBConnection;
+import com.dentalcare.dao.PatientDAO;
+import com.dentalcare.model.Patient;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import javax.servlet.RequestDispatcher;
@@ -22,13 +20,6 @@ import javax.servlet.http.HttpServletResponse;
  * @author syahir
  */
 public class PatientAccountProfileUpdate extends HttpServlet {
-
-    private PreparedStatement pstmt;
-    
-    @Override
-    public void init() throws ServletException {
-        initializeJdbc();
-    }
     
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -69,12 +60,22 @@ public class PatientAccountProfileUpdate extends HttpServlet {
                 return;
             }
 
-            updateProfile(firstname, lastname, phone, id);
+            Patient patient = new Patient();
+            
+            patient.setFirstName(firstname);
+            patient.setLastName(lastname);
+            patient.setPhone(phone);
+            patient.setId(id);
+            
+            PatientDAO patientDAO = new PatientDAO();
+            
+            patientDAO.updateProfile(patient);
+            
             request.setAttribute("successMsgs", "Profile has been updated");
             RequestDispatcher view = request.getRequestDispatcher("/patient/account.jsp");
             view.forward(request, response);
 
-        } catch (IOException | SQLException | ServletException ex) {
+        } catch (IOException | ServletException ex) {
         }
     }
 
@@ -116,29 +117,4 @@ public class PatientAccountProfileUpdate extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
-        //connect with db and query to run
-    private void initializeJdbc() {
-        try {
-
-            //connect to the database
-            Connection conn = DBConnection.createConnection();
-            
-            //update patient profile
-            pstmt = conn.prepareStatement(
-             "UPDATE patients SET patient_firstname=?, patient_lastname=?, patient_phone=? WHERE patient_id=?"
-            );
-            
-        } catch (SQLException ex) {
-        }
-    }
-    
-    //method to update patient profile
-    private void updateProfile(String firstname, String lastname, String phone, int id) throws SQLException {
-        pstmt.setString(1,firstname);
-        pstmt.setString(2,lastname);
-        pstmt.setString(3,phone);
-        pstmt.setInt(4,id);
-        pstmt.executeUpdate();
-    }
 }
