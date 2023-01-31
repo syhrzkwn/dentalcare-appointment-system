@@ -5,14 +5,15 @@ package com.dentalcare.controller;
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-import com.dentalcare.util.DBConnection;
 import com.dentalcare.model.Patient;
 import com.dentalcare.model.Dentist;
 import com.dentalcare.model.Staff;
+import com.dentalcare.dao.PatientDAO;
+import com.dentalcare.dao.DentistDAO;
+import com.dentalcare.dao.StaffDAO;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
 import javax.servlet.RequestDispatcher;
@@ -27,13 +28,6 @@ import javax.servlet.http.HttpSession;
  * @author syahir
  */
 public class AuthLogin extends HttpServlet {
-
-    private PreparedStatement pstmt1, pstmt2, pstmt3;
-    
-    @Override
-    public void init() throws ServletException {
-        initializeJdbc();
-    }
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -88,14 +82,23 @@ public class AuthLogin extends HttpServlet {
             switch (user_type) {
                 case "$B9f86":
                 {
-                    if(checkPatientAccount(email, hashPassword) == null) {
+                    Patient patient = new Patient();
+        
+                    patient.setEmail(email);
+                    patient.setPassword(hashPassword);
+                    
+                    PatientDAO patientDAO = new PatientDAO();
+                    
+                    patient = patientDAO.authenticateUser(patient);
+        
+                    if(patient == null) {
                         request.setAttribute("errorMsgs", "Email or Password is invalid");
                         RequestDispatcher view = request.getRequestDispatcher("/login.jsp");
                         view.forward(request, response);
                     }
                     else {
                         HttpSession session = request.getSession();
-                        session.setAttribute("patient",checkPatientAccount(email, hashPassword));
+                        session.setAttribute("patient", patient);
                         request.setAttribute("successMsgs", "You have login successfully");
 
                         RequestDispatcher view = request.getRequestDispatcher("/patient/home.jsp");
@@ -106,14 +109,23 @@ public class AuthLogin extends HttpServlet {
                 }
                 case "8Dv46$":
                 {
-                    if(checkDentistAccount(email, hashPassword) == null) {
+                    Dentist dentist = new Dentist();
+        
+                    dentist.setEmail(email);
+                    dentist.setPassword(hashPassword);
+                    
+                    DentistDAO dentistDAO = new DentistDAO();
+                    
+                    dentist = dentistDAO.authenticateUser(dentist);
+                    
+                    if(dentist == null) {
                         request.setAttribute("errorMsgs", "Email or Password is invalid");
                         RequestDispatcher view = request.getRequestDispatcher("/login.jsp"); //change the path later
                         view.forward(request, response);
                     }
                     else {
                         HttpSession session = request.getSession();
-                        session.setAttribute("dentist",checkDentistAccount(email, hashPassword));
+                        session.setAttribute("dentist", dentist);
                         request.setAttribute("successMsgs", "You have login successfully");
 
                         RequestDispatcher view = request.getRequestDispatcher("/login.jsp"); //change the path later
@@ -124,14 +136,23 @@ public class AuthLogin extends HttpServlet {
                 }
                 case "08y*6M":
                 {
-                    if(checkStaffAccount(email, hashPassword) == null) {
+                    Staff staff = new Staff();
+        
+                    staff.setEmail(email);
+                    staff.setPassword(hashPassword);
+                    
+                    StaffDAO staffDAO = new StaffDAO();
+                    
+                    staff = staffDAO.authenticateUser(staff);
+                    
+                    if(staff == null) {
                         request.setAttribute("errorMsgs", "Email or Password is invalid");
                         RequestDispatcher view = request.getRequestDispatcher("/admin/login.jsp?secret_key=dn3@ZDt8UJ8l");
                         view.forward(request, response);
                     }
                     else {
                         HttpSession session = request.getSession();
-                        session.setAttribute("staff",checkStaffAccount(email, hashPassword));
+                        session.setAttribute("staff", staff);
                         request.setAttribute("successMsgs", "You have login successfully");
 
                         RequestDispatcher view = request.getRequestDispatcher("/admin/dashboard.jsp");
@@ -149,7 +170,7 @@ public class AuthLogin extends HttpServlet {
                 }
             }
                         
-        } catch (IOException | SQLException | ServletException ex) {
+        } catch (IOException | ServletException ex) {
         }
     }
 
@@ -210,97 +231,7 @@ public class AuthLogin extends HttpServlet {
             return sb.toString();
             
         } catch(NoSuchAlgorithmException ex) {
-            //ex.printStackTrace();
         }
         return "";
-    }
-    
-    //connect with db and query to run
-    private void initializeJdbc() {
-        try {
-            
-            //connect to the database
-            Connection conn = DBConnection.createConnection();
-            
-            //sql query to check and get data active patient account
-            pstmt1 = conn.prepareStatement(
-             "SELECT * FROM patients WHERE patient_email=? AND patient_password=? AND patient_status='Active'"
-            );
-            
-            //sql query to check and get data admin account
-            pstmt2 = conn.prepareStatement(
-             "SELECT * FROM dentists WHERE dentist_email=? AND dentist_password=?"
-            );
-            
-            //sql query to check and get data admin account
-            pstmt3 = conn.prepareStatement(
-             "SELECT * FROM staffs WHERE staff_email=? AND staff_password=?"
-            );
-            
-        } catch (SQLException ex) {
-        }
-    }
-    
-    //method for check and get data patient account
-    private Patient checkPatientAccount(String email, String password) throws SQLException {
-        pstmt1.setString(1,email);
-        pstmt1.setString(2,password);
-        ResultSet rs = pstmt1.executeQuery(); //for execute select query
-        
-        if(rs.next()) {
-            Patient data = new Patient();
-            data.setId(rs.getInt("patient_id"));
-            data.setFirstName(rs.getString("patient_firstname"));
-            data.setLastName(rs.getString("patient_lastname"));
-            data.setPhone(rs.getString("patient_phone"));
-            data.setEmail(rs.getString("patient_email"));
-            data.setStatus(rs.getString("patient_status"));
-            return data;
-        }
-        else {
-            return null;
-        }
-    }
-    
-    //method for check and get data dentist account
-    private Dentist checkDentistAccount(String email, String password) throws SQLException {
-        pstmt2.setString(1,email);
-        pstmt2.setString(2,password);
-        ResultSet rs = pstmt2.executeQuery(); //for execute select query
-        
-        if(rs.next()) {
-            Dentist data = new Dentist();
-            data.setId(rs.getInt("dentist_id"));
-            data.setFirstName(rs.getString("dentist_firstname"));
-            data.setLastName(rs.getString("dentist_lastname"));
-            data.setPhone(rs.getString("dentist_phone"));
-            data.setEmail(rs.getString("dentist_email"));
-            data.setStatus(rs.getString("dentist_status"));
-            return data;
-        }
-        else {
-            return null;
-        }
-    }
-    
-    //method for check and get data staff account
-    private Staff checkStaffAccount(String email, String password) throws SQLException {
-        pstmt3.setString(1,email);
-        pstmt3.setString(2,password);
-        ResultSet rs = pstmt3.executeQuery(); //for execute select query
-        
-        if(rs.next()) {
-            Staff data = new Staff();
-            data.setId(rs.getInt("staff_id"));
-            data.setFirstName(rs.getString("staff_firstname"));
-            data.setLastName(rs.getString("staff_lastname"));
-            data.setPhone(rs.getString("staff_phone"));
-            data.setEmail(rs.getString("staff_email"));
-            data.setStatus(rs.getString("staff_status"));
-            return data;
-        }
-        else {
-            return null;
-        }
     }
 }

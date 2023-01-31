@@ -5,10 +5,13 @@ package com.dentalcare.controller;
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-import com.dentalcare.util.DBConnection;
+import com.dentalcare.dao.PatientDAO;
+import com.dentalcare.dao.StaffDAO;
+import com.dentalcare.dao.DentistDAO;
 import com.dentalcare.model.Patient;
+import com.dentalcare.model.Staff;
+import com.dentalcare.model.Dentist;
 import java.io.IOException;
-import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
 import javax.servlet.RequestDispatcher;
@@ -24,13 +27,6 @@ import javax.servlet.http.HttpSession;
  */
 public class AuthRegister extends HttpServlet {
     
-    private PreparedStatement pstmt1, pstmt2, pstmt3, pstmt4, pstmt5, pstmt6, pstmt7;
-    
-    @Override
-    public void init() throws ServletException {
-        initializeJdbc();
-    }
-
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -108,7 +104,15 @@ public class AuthRegister extends HttpServlet {
             switch (user_type) {
                 case "$B9f861":
                 {
-                    if(isPatientEmailExists(email) != null) {
+                    Patient patient = new Patient();
+        
+                    patient.setEmail(email);
+                    
+                    PatientDAO patientDAO = new PatientDAO();
+                    
+                    patient = patientDAO.isEmailExist(patient);
+                    
+                    if(patient != null) {
                         request.setAttribute("errorMsgs", "Email address is already registered with other account");
                         RequestDispatcher view = request.getRequestDispatcher("/signup.jsp");
                         view.forward(request, response);
@@ -117,11 +121,18 @@ public class AuthRegister extends HttpServlet {
                         //hashing password
                         String hashPassword = AuthLogin.doHashing(password);
 
-                        //store data in db
-                        storePatient(firstname, lastname, phone, email, hashPassword);
-
+                        Patient new_patient = new Patient();
+                        
+                        new_patient.setFirstName(firstname);
+                        new_patient.setLastName(lastname);
+                        new_patient.setPhone(phone);
+                        new_patient.setEmail(email);
+                        new_patient.setPassword(hashPassword);
+                        
+                        new_patient = patientDAO.storeUser(new_patient);
+                        
                         HttpSession session = request.getSession();
-                        session.setAttribute("patient", getPatientData(email,hashPassword));
+                        session.setAttribute("patient", new_patient);
                         request.setAttribute("successMsgs", "You have signup successfully");
                         RequestDispatcher view = request.getRequestDispatcher("/patient/book_appointment.jsp");
                         view.forward(request,response);
@@ -131,7 +142,15 @@ public class AuthRegister extends HttpServlet {
                 }
                 case "$B9f862":
                 {
-                    if(isPatientEmailExists(email) != null) {
+                    Patient patient = new Patient();
+        
+                    patient.setEmail(email);
+                    
+                    PatientDAO patientDAO = new PatientDAO();
+                    
+                    patient = patientDAO.isEmailExist(patient);
+                    
+                    if(patient != null) {
                         request.setAttribute("errorMsgs", "Email address is already registered with other account");
                         RequestDispatcher view = request.getRequestDispatcher("/admin/patient/add.jsp");
                         view.forward(request, response);
@@ -140,11 +159,16 @@ public class AuthRegister extends HttpServlet {
                         //hashing password
                         String hashPassword = AuthLogin.doHashing(password);
 
-                        //store data in db
-                        storePatient(firstname, lastname, phone, email, hashPassword);
+                        Patient new_patient = new Patient();
+                        
+                        new_patient.setFirstName(firstname);
+                        new_patient.setLastName(lastname);
+                        new_patient.setPhone(phone);
+                        new_patient.setEmail(email);
+                        new_patient.setPassword(hashPassword);
+                        
+                        patientDAO.storeUser(new_patient);
 
-                        HttpSession session = request.getSession();
-                        session.setAttribute("patient", getPatientData(email,hashPassword));
                         request.setAttribute("successMsgs", "You have signup successfully");
                         RequestDispatcher view = request.getRequestDispatcher("/admin/patient/add.jsp");
                         view.forward(request,response);
@@ -154,7 +178,15 @@ public class AuthRegister extends HttpServlet {
                 }
                 case "8Dv46$":
                 {
-                    if(isDentistEmailExists(email) != null) {
+                    Dentist dentist = new Dentist();
+        
+                    dentist.setEmail(email);
+                    
+                    DentistDAO dentistDAO = new DentistDAO();
+                    
+                    dentist = dentistDAO.isEmailExist(dentist);
+                    
+                    if(dentist != null) {
                         request.setAttribute("errorMsgs", "Email address is already registered with other account");
                         RequestDispatcher view = request.getRequestDispatcher("/admin/dentist/add.jsp");
                         view.forward(request, response);
@@ -163,8 +195,15 @@ public class AuthRegister extends HttpServlet {
                         //hashing password
                         String hashPassword = AuthLogin.doHashing(password);
 
-                        //store data in db
-                        storeDentist(firstname, lastname, phone, email, hashPassword);
+                        Dentist new_dentist = new Dentist();
+                        
+                        new_dentist.setFirstName(firstname);
+                        new_dentist.setLastName(lastname);
+                        new_dentist.setPhone(phone);
+                        new_dentist.setEmail(email);
+                        new_dentist.setPassword(hashPassword);
+                        
+                        dentistDAO.storeUser(new_dentist);
 
                         request.setAttribute("successMsgs", "You have signup successfully");
                         RequestDispatcher view = request.getRequestDispatcher("/admin/dentist/add.jsp");
@@ -175,7 +214,15 @@ public class AuthRegister extends HttpServlet {
                 }
                 case "08y*6M":
                 {
-                    if(isStaffEmailExists(email) != null) {
+                    Staff staff = new Staff();
+        
+                    staff.setEmail(email);
+                    
+                    StaffDAO staffDAO = new StaffDAO();
+                    
+                    staff = staffDAO.isEmailExist(staff);
+                    
+                    if(staff != null) {
                         request.setAttribute("errorMsgs", "Email address is already registered with other account");
                         RequestDispatcher view = request.getRequestDispatcher("/admin/staff/add.jsp");
                         view.forward(request, response);
@@ -184,8 +231,15 @@ public class AuthRegister extends HttpServlet {
                         //hashing password
                         String hashPassword = AuthLogin.doHashing(password);
 
-                        //store data in db
-                        storeStaff(firstname, lastname, phone, email, hashPassword);
+                        Staff new_staff = new Staff();
+                        
+                        new_staff.setFirstName(firstname);
+                        new_staff.setLastName(lastname);
+                        new_staff.setPhone(phone);
+                        new_staff.setEmail(email);
+                        new_staff.setPassword(hashPassword);
+                        
+                        staffDAO.storeUser(new_staff);
 
                         request.setAttribute("successMsgs", "You have signup successfully");
                         RequestDispatcher view = request.getRequestDispatcher("/admin/staff/add.jsp");
@@ -202,7 +256,7 @@ public class AuthRegister extends HttpServlet {
                     break;
                 }
             }
-        } catch (IOException | SQLException | ServletException ex) {
+        } catch (IOException | ServletException ex) {
         }
     }
 
@@ -244,135 +298,4 @@ public class AuthRegister extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-    
-    //connect with db and query to run
-    private void initializeJdbc() {
-        try {
-
-            //connect to the database
-            Connection conn = DBConnection.createConnection();
-            
-            //check email exists in patient, dentist, staff db query
-            pstmt1 = conn.prepareStatement(
-             "SELECT * FROM patients WHERE patient_email=?"
-            );
-            pstmt2 = conn.prepareStatement(
-             "SELECT * FROM dentists WHERE dentist_email=?"
-            );
-            pstmt3 = conn.prepareStatement(
-             "SELECT * FROM staffs WHERE staff_email=?"
-            );
-            
-            //store patient, dentist, staff data in db query
-            pstmt4 = conn.prepareStatement(
-             "INSERT INTO patients(patient_firstname, patient_lastname, patient_phone, patient_email, patient_password) VALUES(?,?,?,?,?)"
-            );
-            pstmt5 = conn.prepareStatement(
-             "INSERT INTO dentists(dentist_firstname, dentist_lastname, dentist_phone, dentist_email, dentist_password) VALUES(?,?,?,?,?)"
-            );
-            pstmt6 = conn.prepareStatement(
-             "INSERT INTO staffs(staff_firstname, staff_lastname, staff_phone, staff_email, staff_password) VALUES(?,?,?,?,?)"
-            );
-            
-            //sql query to get patient, dentist, staff data
-            pstmt7 = conn.prepareStatement(
-             "SELECT * FROM patients WHERE patient_email=? AND patient_password=?"
-            );
-            
-        } catch (SQLException ex) {
-        }
-    }
-    
-    //method for patient email exists checking
-    private String isPatientEmailExists(String email) throws SQLException {
-        pstmt1.setString(1,email);
-        ResultSet rs = pstmt1.executeQuery(); //for execute select query
-        
-        if(rs.next()) {
-            String data = rs.getString(1);
-            return data;
-        }
-        else {
-            return null;
-        }
-    }
-    
-    //method for patient email exists checking
-    private String isDentistEmailExists(String email) throws SQLException {
-        pstmt2.setString(1,email);
-        ResultSet rs = pstmt2.executeQuery(); //for execute select query
-        
-        if(rs.next()) {
-            String data = rs.getString(1);
-            return data;
-        }
-        else {
-            return null;
-        }
-    }
-    
-    //method for patient email exists checking
-    private String isStaffEmailExists(String email) throws SQLException {
-        pstmt3.setString(1,email);
-        ResultSet rs = pstmt3.executeQuery(); //for execute select query
-        
-        if(rs.next()) {
-            String data = rs.getString(1);
-            return data;
-        }
-        else {
-            return null;
-        }
-    }
-    
-    //method for store patient data
-    private void storePatient(String firstname, String lastname, String phone, String email, String password) throws SQLException {
-        pstmt4.setString(1,firstname);
-        pstmt4.setString(2,lastname);
-        pstmt4.setString(3,phone);
-        pstmt4.setString(4,email);
-        pstmt4.setString(5,password);
-        pstmt4.executeUpdate();
-    }
-    
-    //method for store dentist data
-    private void storeDentist(String firstname, String lastname, String phone, String email, String password) throws SQLException {
-        pstmt5.setString(1,firstname);
-        pstmt5.setString(2,lastname);
-        pstmt5.setString(3,phone);
-        pstmt5.setString(4,email);
-        pstmt5.setString(5,password);
-        pstmt5.executeUpdate();
-    }
-    
-    //method for store staff data
-    private void storeStaff(String firstname, String lastname, String phone, String email, String password) throws SQLException {
-        pstmt6.setString(1,firstname);
-        pstmt6.setString(2,lastname);
-        pstmt6.setString(3,phone);
-        pstmt6.setString(4,email);
-        pstmt6.setString(5,password);
-        pstmt6.executeUpdate();
-    }
-    
-    //method for check and get data patient account
-    private Patient getPatientData(String email, String password) throws SQLException {
-        pstmt7.setString(1,email);
-        pstmt7.setString(2,password);
-        ResultSet rs = pstmt7.executeQuery(); //for execute select query
-
-        if(rs.next()) {
-            Patient data = new Patient();
-            data.setId(rs.getInt("patient_id"));
-            data.setFirstName(rs.getString("patient_firstname"));
-            data.setLastName(rs.getString("patient_lastname"));
-            data.setPhone(rs.getString("patient_phone"));
-            data.setEmail(rs.getString("patient_email"));
-            data.setStatus(rs.getString("patient_status"));
-            return data;
-        }
-        else {
-            return null;
-        }
-    }
 }
