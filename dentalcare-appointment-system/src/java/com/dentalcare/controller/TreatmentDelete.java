@@ -4,11 +4,9 @@
  */
 package com.dentalcare.controller;
 
-import com.dentalcare.util.DBConnection;
+import com.dentalcare.dao.TreatmentDAO;
+import com.dentalcare.model.Treatment;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -21,12 +19,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class TreatmentDelete extends HttpServlet {
 
-    private PreparedStatement pstmt;
-    
-    @Override
-    public void init() throws ServletException {
-        initializeJdbc();
-    }
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -43,11 +35,18 @@ public class TreatmentDelete extends HttpServlet {
         int id = Integer.parseInt(id_param);
         
         try {
-            deleteTreatment(id);
+            Treatment treatment = new Treatment();
+
+            treatment.setId(id);
+            
+            TreatmentDAO treatmentDAO = new TreatmentDAO();
+            
+            treatmentDAO.deleteTreatment(treatment);
+            
             request.setAttribute("successMsgs", "Treatment deleted successfully");
             RequestDispatcher view = request.getRequestDispatcher("/admin/treatment/index.jsp");
             view.forward(request,response);
-        } catch(IOException | SQLException | ServletException ex) {
+        } catch(IOException | ServletException ex) {
         }
     }
 
@@ -89,26 +88,4 @@ public class TreatmentDelete extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
-    //connect with db and query to run
-    private void initializeJdbc() {
-        try {
-
-            //connect to the database
-            Connection conn = DBConnection.createConnection();
-            
-            //delete patient account
-            pstmt = conn.prepareStatement(
-             "DELETE FROM treatments WHERE treat_id=?"
-            );
-            
-        } catch (SQLException ex) {
-        }
-    }
-    
-    //method to update patient password
-    private void deleteTreatment(int id) throws SQLException {
-        pstmt.setInt(1,id);
-        pstmt.executeUpdate();
-    }
 }

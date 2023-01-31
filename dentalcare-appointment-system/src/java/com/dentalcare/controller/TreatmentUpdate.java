@@ -4,11 +4,9 @@
  */
 package com.dentalcare.controller;
 
-import com.dentalcare.util.DBConnection;
+import com.dentalcare.dao.TreatmentDAO;
+import com.dentalcare.model.Treatment;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import javax.servlet.RequestDispatcher;
@@ -23,12 +21,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class TreatmentUpdate extends HttpServlet {
 
-    private PreparedStatement pstmt;
-    
-    @Override
-    public void init() throws ServletException {
-        initializeJdbc();
-    }
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -64,13 +56,20 @@ public class TreatmentUpdate extends HttpServlet {
                 return;
             }
             
-            //update data in db
-            updateTreatment(title, desc, id);
+            Treatment treatment = new Treatment();
+            
+            treatment.setId(id);
+            treatment.setTitle(title);
+            treatment.setDesc(desc);
+            
+            TreatmentDAO treatmentDAO = new TreatmentDAO();
+            
+            treatmentDAO.updateTreatment(treatment);
 
             request.setAttribute("successMsgs", "Treatment updated successfully");
             RequestDispatcher view = request.getRequestDispatcher("/admin/treatment/edit.jsp?treat_id="+id);
             view.forward(request,response);
-        } catch(IOException | SQLException | ServletException ex) {
+        } catch(IOException | ServletException ex) {
         }
     }
 
@@ -112,28 +111,4 @@ public class TreatmentUpdate extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
-        //connect with db and query to run
-    private void initializeJdbc() {
-        try {
-            
-            //connect to the database
-            Connection conn = DBConnection.createConnection();
-            
-            //store treatment query
-            pstmt = conn.prepareStatement(
-             "UPDATE treatments SET treat_title=?, treat_desc=? WHERE treat_id=?"
-            );
-            
-        } catch (SQLException ex) {
-        }
-    }
-    
-    //method for store treatment data
-    private void updateTreatment(String title, String desc, int id) throws SQLException {
-        pstmt.setString(1,title);
-        pstmt.setString(2,desc);
-        pstmt.setInt(3,id);
-        pstmt.executeUpdate();
-    }
 }
