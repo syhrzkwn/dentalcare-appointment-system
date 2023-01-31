@@ -30,7 +30,7 @@
                         <c:forEach var="result" items="${results.rows}">
                             <span>
                                 <i class="fs-4 bi bi-person-circle align-middle me-2 position-relative"></i>
-                                <span>${result.staff_firstname}
+                                <span>${result.staff_firstname} ${result.staff_lastname}
                                     <c:choose>
                                         <c:when test="${result.staff_status eq 'Available'}">
                                             <i class="bi bi-check-circle-fill text-success"></i>
@@ -40,6 +40,7 @@
                                         </c:when>
                                     </c:choose>
                                 </span>
+                            </span>
                         </c:forEach>
                     </a>
                     <div class="dropdown-menu dropdown-menu-lg-end" aria-labelledby="navbarDropdown">
