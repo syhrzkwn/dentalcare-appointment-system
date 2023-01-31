@@ -11,7 +11,7 @@ import java.io.Serializable;
  */
 public class User implements Serializable {
     private int id;
-    private String firstname, lastname, phone, email, status;
+    private String firstname, lastname, phone, email, password, status;
     
     //constructor
     public User() {
@@ -20,6 +20,7 @@ public class User implements Serializable {
         this.lastname = "";
         this.phone = "";
         this.email = "";
+        this.password = "";
         this.status = "";
     }
     
@@ -38,6 +39,9 @@ public class User implements Serializable {
     }
     public void setEmail(String email) {
         this.email = email;
+    }
+    public void setPassword(String password) {
+        this.password = password;
     }
     public void setStatus(String status) {
         this.status = status;
@@ -58,6 +62,9 @@ public class User implements Serializable {
     }
     public String getEmail() {
         return email;
+    }
+    public String getPassword() {
+        return password;
     }
     public String getStatus() {
         return status;
