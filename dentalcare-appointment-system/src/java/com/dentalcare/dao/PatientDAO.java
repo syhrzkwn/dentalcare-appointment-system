@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import javax.servlet.RequestDispatcher;
 
 /**
  *
@@ -157,7 +158,7 @@ public class PatientDAO {
         return null;
     }
     
-    public void deleteUser(Patient patient) {
+    public String deleteUser(Patient patient) {
         
         String email = patient.getEmail();
         int id = patient.getId();
@@ -177,7 +178,9 @@ public class PatientDAO {
             pstmt.close();
             
         } catch(SQLException ex) {
+            return ex.getMessage();
         }
+        return null;
     }
     
     public void updateEmail(Patient patient) {

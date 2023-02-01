@@ -70,11 +70,18 @@ public class PatientAccountDelete extends HttpServlet {
                 new_patient.setEmail(email_for_delete);
                 new_patient.setId(id);
 
-                patientDAO.deleteUser(new_patient);
+                String deleteUser = patientDAO.deleteUser(new_patient);
 
-                request.setAttribute("successMsgs", "Your account has been deleted");
-                RequestDispatcher view = request.getRequestDispatcher("/login.jsp");
-                view.forward(request, response);
+                if(deleteUser == null) {
+                    request.setAttribute("successMsgs", "Your account has been deleted");
+                    RequestDispatcher view = request.getRequestDispatcher("/login.jsp");
+                    view.forward(request, response);
+                }
+                else {
+                    request.setAttribute("errorMsgs", "Sorry but we cannot delete your account because you still have a booked appointment with us!");
+                    RequestDispatcher view = request.getRequestDispatcher("/patient/account.jsp");
+                    view.forward(request, response);
+                }
             }
             
         } catch (IOException | ServletException ex) {

@@ -192,11 +192,19 @@ public class PatientUpdate extends HttpServlet {
                     new_patient.setEmail(email_for_delete);
                     new_patient.setId(id);
 
-                    patientDAO.deleteUser(new_patient);
-                
-                    request.setAttribute("successMsgs", "Patient account has been deleted");
-                    RequestDispatcher view = request.getRequestDispatcher("/admin/patient/index.jsp");
-                    view.forward(request, response);
+                    String deleteUser = patientDAO.deleteUser(new_patient);
+                    
+                    if(deleteUser == null) {
+                        request.setAttribute("successMsgs", "Patient account has been deleted");
+                        RequestDispatcher view = request.getRequestDispatcher("/admin/patient/index.jsp");
+                        view.forward(request, response);
+                    }
+                    else {
+                        request.setAttribute("errorMsgs", "Patient account cannot be deleted because the patient have a booked appointment!");
+                        RequestDispatcher view = request.getRequestDispatcher("/admin/patient/edit.jsp?patient_id="+id);
+                        view.forward(request, response);
+                    }
+                    
                     break;
                 }
                 default:
