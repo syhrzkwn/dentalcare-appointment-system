@@ -199,11 +199,14 @@ public class PatientUpdate extends HttpServlet {
                         RequestDispatcher view = request.getRequestDispatcher("/admin/patient/index.jsp");
                         view.forward(request, response);
                     }
+                    // Fixed on delete cascade on appointments table
+                    // It will also delete appointment linked to patient
+                    /*
                     else {
                         request.setAttribute("errorMsgs", "Patient account cannot be deleted because the patient have a booked appointment!");
                         RequestDispatcher view = request.getRequestDispatcher("/admin/patient/edit.jsp?patient_id="+id);
                         view.forward(request, response);
-                    }
+                    }*/
                     
                     break;
                 }

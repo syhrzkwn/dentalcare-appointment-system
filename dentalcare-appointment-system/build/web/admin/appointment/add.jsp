@@ -3,9 +3,11 @@
     Created on : Dec 22, 2022, 10:14:54 AM
     Author     : syahir
 --%>
+<%@page import="java.util.Date"%>
 <%@taglib prefix="sql" uri="http://java.sun.com/jsp/jstl/sql"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<% Date date = new java.util.Date(); %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -71,8 +73,9 @@
                                                     </select>
                                                 </div>
                                                 <div class="form-group col-md-6">
+                                                    <%java.text.DateFormat df1 = new java.text.SimpleDateFormat("yyyy-MM-dd"); %>
                                                     <label for="date">Select Date <span class="text-danger">*</span></label>
-                                                    <input type="date" class="form-control" id="date" name="date">
+                                                    <input type="date" min="<%= df1.format(date) %>" class="form-control" id="date" name="date">
                                                 </div>
                                                 <div class="form-group col-md-6">
                                                     <label for="remark">Remark <span class="text-danger">*</span></label>
