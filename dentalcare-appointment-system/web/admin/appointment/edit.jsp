@@ -8,7 +8,7 @@
 <%@taglib prefix="sql" uri="http://java.sun.com/jsp/jstl/sql"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<% Date date = new java.util.Date(); %>
+<%-- <% Date date = new java.util.Date(); %> --%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -100,9 +100,9 @@
                                                         <input type="text" class="form-control" id="treatment" value="${result.treat_title}" disabled>
                                                     </div>
                                                     <div class="form-group col-md-4">
-                                                        <%java.text.DateFormat df1 = new java.text.SimpleDateFormat("yyyy-MM-dd"); %>
+                                                        <%-- <%java.text.DateFormat df1 = new java.text.SimpleDateFormat("yyyy-MM-dd"); %> --%>
                                                         <label for="date">Date <span class="text-danger">*</span></label>
-                                                        <input type="date" min="<%= df1.format(date) %>" class="form-control" id="date" name="date" value="${result.aptmt_date}">
+                                                        <input type="date" <%-- min="<%= df1.format(date) %>" --%> class="form-control" id="date" name="date" value="${result.aptmt_date}">
                                                     </div>
                                                     <div class="form-group col-md-4">
                                                         <label for="time">Time <span class="text-danger">*</span></label>
