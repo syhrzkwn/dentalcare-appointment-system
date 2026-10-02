@@ -1,10 +1,5 @@
 package com.dentalcare.controller;
 
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
-
 import com.dentalcare.dao.PatientDAO;
 import com.dentalcare.dao.StaffDAO;
 import com.dentalcare.dao.DentistDAO;
@@ -38,7 +33,7 @@ public class AuthRegister extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List errorMsgs = new LinkedList();
+        List<String> errorMsgs = new LinkedList<>();
         
         String firstname = request.getParameter("firstname");
         String lastname = request.getParameter("lastname");

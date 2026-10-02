@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.dentalcare.dao;
 
 import com.dentalcare.model.Appointment;
@@ -10,7 +6,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  *
@@ -18,7 +13,6 @@ import java.sql.Statement;
  */
 public class AppointmentDAO {
     private Connection con = null;
-    private Statement statement = null;
     private PreparedStatement pstmt = null;
     private ResultSet resultSet = null;
 
@@ -45,11 +39,11 @@ public class AppointmentDAO {
             
             pstmt.setString(1,aptmt_date);
             pstmt.setString(2,aptmt_time);
-            ResultSet rs = pstmt.executeQuery();
+            resultSet = pstmt.executeQuery();
             
             int data = 0;
-            if(rs.next()) {
-                data = rs.getInt("count");
+            if(resultSet.next()) {
+                data = resultSet.getInt("count");
             }
             
             con.close();
@@ -74,11 +68,11 @@ public class AppointmentDAO {
             );
             
             pstmt.setInt(1,patient_id);
-            ResultSet rs = pstmt.executeQuery();
+            resultSet = pstmt.executeQuery();
             
             String data = null;
-            if(rs.next()) {
-                data = rs.getString(1);
+            if(resultSet.next()) {
+                data = resultSet.getString(1);
             }
             
             con.close();
@@ -187,11 +181,11 @@ public class AppointmentDAO {
             pstmt.setString(1,aptmt_date);
             pstmt.setString(2,aptmt_time);
             pstmt.setInt(3,dentist_id);
-            ResultSet rs = pstmt.executeQuery();
+            resultSet = pstmt.executeQuery();
             
             String data = null;
-            if(rs.next()) {
-                data = rs.getString(1);
+            if(resultSet.next()) {
+                data = resultSet.getString(1);
             }
             
             con.close();

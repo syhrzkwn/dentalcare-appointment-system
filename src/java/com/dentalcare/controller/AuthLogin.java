@@ -1,10 +1,5 @@
 package com.dentalcare.controller;
 
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
-
 import com.dentalcare.model.Patient;
 import com.dentalcare.model.Dentist;
 import com.dentalcare.model.Staff;
@@ -40,7 +35,7 @@ public class AuthLogin extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List errorMsgs = new LinkedList();
+        List<String> errorMsgs = new LinkedList<>();
         
         String email = request.getParameter("email");
         String password = request.getParameter("password");

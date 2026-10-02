@@ -1,14 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.dentalcare.dao;
 
 import com.dentalcare.model.Treatment;
 import com.dentalcare.util.DBConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -18,7 +13,6 @@ import java.sql.SQLException;
 public class TreatmentDAO {
     private Connection con = null;
     private PreparedStatement pstmt = null;
-    private ResultSet resultSet = null;
 
     private int treat_id = 0;
     private String treat_title = "";
@@ -26,8 +20,8 @@ public class TreatmentDAO {
     
     public void storeTreatment(Treatment treatment) {
         
-        String title = treatment.getTitle();
-        String desc = treatment.getDesc();
+        treat_title = treatment.getTitle();
+        treat_desc = treatment.getDesc();
         
         try {
             con = DBConnection.createConnection();
@@ -36,8 +30,8 @@ public class TreatmentDAO {
             "INSERT INTO treatments(treat_title, treat_desc) VALUES(?,?)"
             );
             
-            pstmt.setString(1,title);
-            pstmt.setString(2,desc);
+            pstmt.setString(1,treat_title);
+            pstmt.setString(2,treat_desc);
             pstmt.executeUpdate();
             
             con.close();
@@ -49,9 +43,9 @@ public class TreatmentDAO {
     
     public void updateTreatment(Treatment treatment) {
         
-        int id = treatment.getId();
-        String title = treatment.getTitle();
-        String desc = treatment.getDesc();
+        treat_id = treatment.getId();
+        treat_title = treatment.getTitle();
+        treat_desc = treatment.getDesc();
         
         try {
             con = DBConnection.createConnection();
@@ -60,9 +54,9 @@ public class TreatmentDAO {
             "UPDATE treatments SET treat_title=?, treat_desc=? WHERE treat_id=?"
             );
             
-            pstmt.setString(1,title);
-            pstmt.setString(2,desc);
-            pstmt.setInt(3,id);
+            pstmt.setString(1,treat_title);
+            pstmt.setString(2,treat_desc);
+            pstmt.setInt(3,treat_id);
             pstmt.executeUpdate();
             
             con.close();
@@ -74,7 +68,7 @@ public class TreatmentDAO {
     
     public void deleteTreatment(Treatment treatment) {
         
-        int id = treatment.getId();
+        treat_id = treatment.getId();
         
         try {
             con = DBConnection.createConnection();
@@ -83,7 +77,7 @@ public class TreatmentDAO {
             "DELETE FROM treatments WHERE treat_id=?"
             );
             
-            pstmt.setInt(1,id);
+            pstmt.setInt(1,treat_id);
             pstmt.executeUpdate();
             
             con.close();

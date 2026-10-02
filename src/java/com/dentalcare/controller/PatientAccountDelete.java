@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package com.dentalcare.controller;
 
 import com.dentalcare.dao.PatientDAO;
@@ -32,7 +28,7 @@ public class PatientAccountDelete extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List errorMsgs = new LinkedList();
+        List<String> errorMsgs = new LinkedList<>();
         
         String email_for_delete = request.getParameter("email_for_delete");
         String id_param = request.getParameter("id");
