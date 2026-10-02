@@ -151,6 +151,8 @@ cp .env.example .env
 MYSQL_ROOT_PASSWORD=pick-a-strong-password
 DB_USER=dentalcare
 DB_PASSWORD=pick-another-strong-password
+ADMIN_EMAIL=admin@dentalcare.com
+ADMIN_PASSWORD=pick-your-admin-login-password
 DB_PORT=3306
 APP_PORT=8080
 ```
@@ -193,7 +195,7 @@ Port mapping, in the form **`address : your-Mac-port : container-port`**. This l
       - ./sql:/docker-entrypoint-initdb.d:ro
 ```
 - `db-data:/var/lib/mysql`: MySQL keeps its data files in `/var/lib/mysql`. Storing that folder in the `db-data` volume means **your data survives** stopping and restarting.
-- `./sql:/docker-entrypoint-initdb.d:ro`: this makes your project's `sql/` folder visible inside the container (`ro` = read-only). The MySQL image automatically runs every `.sql` file in `/docker-entrypoint-initdb.d`, in alphabetical order (`schema.sql`, then `seed.sql`). **This only happens the very first time, when the database is empty.** See section 9.
+- `./sql:/docker-entrypoint-initdb.d:ro`: this makes your project's `sql/` folder visible inside the container (`ro` = read-only). The MySQL image automatically runs every `.sql` and `.sh` file in `/docker-entrypoint-initdb.d`, in alphabetical order: `schema.sql` creates the tables, `seed-admin.sh` creates the admin account from `ADMIN_EMAIL` / `ADMIN_PASSWORD`, and `seed.sql` adds the starting data. **This only happens the very first time, when the database is empty.** See section 9.
 
 ```yaml
     healthcheck:
@@ -288,7 +290,7 @@ It works like `.gitignore`, but for Docker.
 1. **Build the app image**: Docker follows the `Dockerfile` (downloads Maven/Java, compiles the code, puts the `.war` into Tomcat). The first build takes a few minutes; later builds are faster thanks to caching.
 2. **Download MySQL**: the `mysql:8.4` image is downloaded the first time only.
 3. **Create the network and volume**: a private network for the two containers, plus the `db-data` volume if it doesn't exist.
-4. **Start `db`**: if the `db-data` volume is **empty** (first run), MySQL creates the `dentalcare` database and user, then runs `sql/schema.sql` and `sql/seed.sql`.
+4. **Start `db`**: if the `db-data` volume is **empty** (first run), MySQL creates the `dentalcare` database and user, then runs `sql/schema.sql`, `sql/seed-admin.sh` (your admin account) and `sql/seed.sql`.
 5. **Wait**: Docker runs the health check until MySQL answers.
 6. **Start `app`**: Tomcat starts and deploys your app.
 7. **Open** http://localhost:8080/
@@ -328,8 +330,8 @@ docker compose up --build
 ### Logging in
 
 - Website: http://localhost:8080/
-- Admin login: http://localhost:8080/admin/login.jsp?secret_key=dn3@ZDt8UJ8l
-  with the admin account you create (see `sql/seed.sql`)
+- Admin login: http://localhost:8080/admin/login.jsp?secret_key=<key> (the key is in `web/admin/login.jsp`),
+  with `ADMIN_EMAIL` / `ADMIN_PASSWORD` from your `.env`. They only take effect when the database is first created; after that, change the password on the admin Account page.
 
 ---
 

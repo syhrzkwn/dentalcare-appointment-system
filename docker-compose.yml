@@ -7,12 +7,15 @@ services:
       MYSQL_DATABASE: dentalcare
       MYSQL_USER: ${DB_USER:?set DB_USER in .env}
       MYSQL_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+      # first admin account, created once by sql/seed-admin.sh
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?set ADMIN_EMAIL in .env}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set ADMIN_PASSWORD in .env}
     ports:
       # localhost only, so the database is not reachable from other machines
       - "127.0.0.1:${DB_PORT:-3306}:3306"
     volumes:
       - db-data:/var/lib/mysql
-      # schema.sql and seed.sql run once, on first start with an empty volume
+      # schema.sql, seed-admin.sh and seed.sql run once, on first start with an empty volume
       - ./sql:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\""]

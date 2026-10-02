@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
-# Smoke test for a running stack: pages load and the seeded admin can log in and open
+# Smoke test for a running stack: pages load and the admin account can log in and open
 # a page that queries the database.
-# Usage: .github/scripts/smoke-test.sh [base-url]   (default: http://localhost:8080)
+# Usage: ADMIN_EMAIL=... ADMIN_PASSWORD=... .github/scripts/smoke-test.sh [base-url]
+#   ADMIN_EMAIL / ADMIN_PASSWORD: the admin account created from .env (default url: http://localhost:8080)
 set -euo pipefail
 
 BASE_URL="${1:-http://localhost:8080}"
+: "${ADMIN_EMAIL:?set ADMIN_EMAIL to the admin login email}"
+: "${ADMIN_PASSWORD:?set ADMIN_PASSWORD to the admin login password}"
 COOKIES="$(mktemp)"
 trap 'rm -f "$COOKIES"' EXIT
 
@@ -24,7 +27,7 @@ for page in "" login.jsp signup.jsp css/main.css; do
 done
 
 curl -s -c "$COOKIES" -b "$COOKIES" \
-    --data-urlencode email=admin@dentalcare.com \
+    --data-urlencode "email=$ADMIN_EMAIL" \
     --data-urlencode "password=$ADMIN_PASSWORD" \
     --data-urlencode 'user_type=08y*6M' \
     "$BASE_URL/auth_login.do" | grep -q 'login successfully' || fail "admin login failed"

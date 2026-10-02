@@ -16,19 +16,26 @@ For Docker basics, read [docker-guide.md](docker-guide.md) first.
                         1. build image → ghcr.io/syhrzkwn/dentalcare-appointment-system
                         2. SSH to the server as "deploy"
                         3. server pulls the image and restarts the app
-                        4. server checks the app responds
+                        4. server checks the site responds over HTTPS
+```
+
+The live site is **https://dentalcare.syhrzkwn.dev**. Each request travels:
+
+```
+Browser ──HTTPS──► Cloudflare ──HTTPS──► caddy (:443 on the server) ──► app (:8080) ──► db
+         Cloudflare's certificate    Cloudflare Origin certificate      Docker's internal network
 ```
 
 Only **merged pull requests** deploy. Pushing to `develop` runs nothing, and a direct push to `master` runs nothing and is **not deployed**, so the server keeps running the last merged version.
 
-CI does not run again after the merge. To make sure the merged code is exactly the code CI tested, protect `master` (section 8).
+CI does not run again after the merge. To make sure the merged code is exactly the code CI tested, protect `master` (section 9).
 
 | Piece | Where |
 |---|---|
 | CI workflow | `.github/workflows/ci.yml`. Runs on pull requests into `master`: when opened or reopened, and on every new commit pushed to them. |
 | Deploy workflow | `.github/workflows/deploy.yml`. Runs when a pull request into `master` is merged. |
 | Smoke test | `.github/scripts/smoke-test.sh`. Checks pages load, the seeded admin can log in, and the dashboard can query the database. Also works locally: `.github/scripts/smoke-test.sh http://localhost:8080` |
-| Production compose file | `docker-compose.prod.yml`. Copied to the server by the deploy script on every deploy. |
+| Production compose file | `docker-compose.prod.yml`. Copied to the server by the deploy script on every deploy. Runs `db`, `app` and `caddy`; only caddy's port 443 is exposed. |
 | Server deploy script | `deploy/dentalcare-deploy.sh`, installed on the server as `/usr/local/bin/dentalcare-deploy`. |
 | Server | AWS EC2 t3.small, Ubuntu 26.04, with an Elastic IP (`<server-ip>` below). App files in `/opt/dentalcare`. |
 
@@ -70,7 +77,7 @@ The deploy workflow also uses `GITHUB_TOKEN`, which GitHub creates automatically
 3. Downloads `docker-compose.prod.yml` from that exact commit into `/opt/dentalcare/docker-compose.yml`.
 4. Logs in to ghcr.io with the token from the workflow, pulls the app image `sha-<commit>`, and logs out.
 5. Restarts the app with `docker compose up -d`. The database keeps running, and its data stays in the `db-data` volume.
-6. Waits up to 2 minutes for the app to answer on port 80. On success it removes old images; otherwise it prints the app logs and the deploy fails.
+6. Waits up to 2 minutes for `https://dentalcare.syhrzkwn.dev` to answer through caddy on the server itself. On success it removes old images; otherwise it prints the app and caddy logs and the deploy fails. A missing or broken certificate fails the deploy too.
 
 The deployed commit is recorded in `/opt/dentalcare/DEPLOYED_COMMIT`.
 
@@ -105,14 +112,20 @@ Kept here so the server can be rebuilt. Run as `ubuntu`:
    ```
 5. Install the deploy script (section 4).
 6. Create `/opt/dentalcare` (owner `deploy`, mode `750`) containing:
-   - `sql/schema.sql` and `sql/seed.sql`, used only when the database is first created
+   - `sql/schema.sql`, `sql/seed-admin.sh` (mode `755`) and `sql/seed.sql`, used only when the database is first created. The deploy does not update them.
    - `.env` (mode `600`) with generated passwords:
      ```
      MYSQL_ROOT_PASSWORD=<random>
      DB_USER=dentalcare
      DB_PASSWORD=<random>
+     ADMIN_EMAIL=admin@dentalcare.com
+     ADMIN_PASSWORD=<random>
      ```
-7. AWS Security Group: allow `22`, `80` and `443` inbound. Never open `3306` or `8080`.
+   - `certs/` (mode `700`) with the Cloudflare Origin certificate as `origin.pem` and its private key as `origin.key` (mode `600`). See section 6.
+7. AWS Security Group, inbound:
+   - `22` (SSH) from anywhere, because GitHub Actions connects from changing addresses. SSH only accepts keys.
+   - `443` (HTTPS) **only from Cloudflare's IPv4 ranges** (https://www.cloudflare.com/ips-v4), one rule per range.
+   - Nothing else. Port `80` isn't needed (Cloudflare connects over 443), and `3306` and `8080` aren't published at all.
 
 If the server is rebuilt, its SSH host key changes, so update the `SSH_KNOWN_HOSTS` secret:
 ```sh
@@ -121,7 +134,26 @@ ssh-keyscan -t ed25519 <server-ip>
 
 ---
 
-## 6. Day-to-day
+## 6. Domain and HTTPS (Cloudflare)
+
+`syhrzkwn.dev` is managed in Cloudflare. The main site on `syhrzkwn.dev` is served from S3, whose website hosting only supports plain HTTP, so the zone's SSL/TLS mode stays **Flexible**. `dentalcare.syhrzkwn.dev` is set to **Full (strict)** by its own rule, so only this app is affected.
+
+| Setting | Where in Cloudflare | Value |
+|---|---|---|
+| DNS record | DNS → Records | Type `A`, name `dentalcare`, IPv4 `<server-ip>`, proxy **on** (orange cloud) |
+| Encryption for this app only | Rules → Configuration Rules | When *Hostname equals* `dentalcare.syhrzkwn.dev` → SSL: **Full (strict)** |
+| Redirect HTTP to HTTPS | SSL/TLS → Edge Certificates | **Always Use HTTPS** on (`.dev` browsers force HTTPS anyway) |
+| Origin certificate | SSL/TLS → Origin Server → Create Certificate | Hostnames `*.syhrzkwn.dev` and `syhrzkwn.dev`, validity 15 years |
+
+Why the rule matters: with **Flexible**, Cloudflare would contact the server over plain HTTP on port 80, where nothing listens, and visitors would see a Cloudflare error. With **Full (strict)**, Cloudflare connects over HTTPS and checks the server's Origin certificate.
+
+The Origin certificate is only trusted by Cloudflare, so the site only works through Cloudflare. Visitors see Cloudflare's own public certificate. The certificate and key live only on the server in `/opt/dentalcare/certs/`, never in the repo. To replace them, copy the new files there, then as `deploy` in `/opt/dentalcare` run `docker compose restart caddy`.
+
+Caddy refuses HTTPS requests for any other hostname, including requests made to the server's IP address directly.
+
+---
+
+## 7. Day-to-day
 
 Log in as admin with `ssh syhrzkwn-dev-my-server-1`. The app runs as `deploy`, so switch user first:
 
@@ -136,6 +168,7 @@ cd /opt/dentalcare
 | Which commit is live | `cat DEPLOYED_COMMIT` |
 | App logs | `docker compose logs -f app` |
 | Database logs | `docker compose logs -f db` |
+| HTTPS / caddy logs | `docker compose logs -f caddy` |
 | Restart the app | `docker compose restart app` |
 | MySQL prompt | `docker compose exec db sh -c 'mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" dentalcare'` |
 
@@ -165,15 +198,17 @@ Copy backups off the server, for example with `scp`, so they survive if the serv
 
 ---
 
-## 7. Still to do
+## 8. After the first deploy
 
-- **Open port 80** (and later 443) in the Security Group, so the site can be reached at `http://<server-ip>`.
-- **Domain and HTTPS**: point an `A` record at `<server-ip>`, then add a reverse proxy (for example Caddy) in front of the app for automatic HTTPS certificates.
-- **Set a strong admin password** right after the first deploy.
+- **Log in to the admin panel.** The first deploy creates the admin account from `ADMIN_EMAIL` and the random `ADMIN_PASSWORD` in the server's `.env`. To see them:
+  ```sh
+  ssh syhrzkwn-dev-my-server-1 'sudo grep ^ADMIN_ /opt/dentalcare/.env'
+  ```
+  Then change the password on the admin Account page if you want one you can remember. The `.env` value is only used when the database is first created, so it won't match after that.
 
 ---
 
-## 8. Protecting `master`
+## 9. Protecting `master`
 
 CI only runs on the pull request, so GitHub has to guarantee that what gets merged is what CI tested. In **Settings → Branches → Add branch ruleset** (or *Add rule*) for `master`, turn on:
 

@@ -1,8 +1,6 @@
 USE dentalcare;
 
--- Create an admin account to log in to the admin panel, for example:
--- INSERT INTO staffs (staff_firstname, staff_lastname, staff_phone, staff_email, staff_password)
--- VALUES ('Admin', '', '', 'you@example.com', MD5('your-password'));
+-- The first admin account is created by seed-admin.sh from ADMIN_EMAIL / ADMIN_PASSWORD in .env
 
 -- For Not Assigned dentist purpose (Required and must be at dentist_id = 0)!
 -- MySQL won't insert 0 into an AUTO_INCREMENT column, so insert normally,

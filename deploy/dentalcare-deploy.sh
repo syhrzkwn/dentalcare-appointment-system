@@ -10,6 +10,7 @@ set -euo pipefail
 
 REPO="syhrzkwn/dentalcare-appointment-system"
 APP_DIR="/opt/dentalcare"
+DOMAIN="dentalcare.syhrzkwn.dev"
 
 fail() { echo "deploy: $*" >&2; exit 1; }
 
@@ -42,14 +43,15 @@ docker logout ghcr.io >/dev/null 2>&1 || true
 docker compose up -d --remove-orphans
 echo "$sha" > DEPLOYED_COMMIT
 
-# Tomcat takes a few seconds to deploy the WAR
+# Check the site through caddy, the way Cloudflare reaches it. -k because the Cloudflare Origin
+# certificate is only trusted by Cloudflare. Tomcat takes a few seconds to deploy the WAR.
 for _ in $(seq 1 60); do
-    if curl -fsS -o /dev/null http://127.0.0.1/; then
+    if curl -fsSk -o /dev/null --resolve "$DOMAIN:443:127.0.0.1" "https://$DOMAIN/"; then
         docker image prune -af >/dev/null
         echo "deploy: $sha is live"
         exit 0
     fi
     sleep 2
 done
-docker compose logs --tail 50 app >&2
-fail "app did not respond after deploying $sha"
+docker compose logs --tail 50 app caddy >&2
+fail "site did not respond after deploying $sha"
