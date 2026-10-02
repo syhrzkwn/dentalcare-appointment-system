@@ -153,6 +153,7 @@ DB_USER=dentalcare
 DB_PASSWORD=pick-another-strong-password
 ADMIN_EMAIL=admin@dentalcare.com
 ADMIN_PASSWORD=pick-your-admin-login-password
+ADMIN_SECRET_KEY=letters-and-digits-only
 DB_PORT=3306
 APP_PORT=8080
 ```
@@ -257,6 +258,7 @@ Now there is one place: `src/java/com/dentalcare/util/DBConnection.java` reads t
 | `DB_URL` | `jdbc:mysql://db:3306/dentalcare` | `jdbc:mysql://localhost:3306/dentalcare` |
 | `DB_USER` | `DB_USER` from `.env` | none, so the connection fails |
 | `DB_PASSWORD` | `DB_PASSWORD` from `.env` | none, so the connection fails |
+| `ADMIN_SECRET_KEY` | `ADMIN_SECRET_KEY` from `.env` | none, so the admin login page stays closed |
 
 The user name and password deliberately have no default in the code, so no password is ever written in the source.
 
@@ -330,8 +332,8 @@ docker compose up --build
 ### Logging in
 
 - Website: http://localhost:8080/
-- Admin login: http://localhost:8080/admin/login.jsp?secret_key=<key> (the key is in `web/admin/login.jsp`),
-  with `ADMIN_EMAIL` / `ADMIN_PASSWORD` from your `.env`. They only take effect when the database is first created; after that, change the password on the admin Account page.
+- Admin login: http://localhost:8080/admin/login.jsp?secret_key=<ADMIN_SECRET_KEY from your .env>,
+  with `ADMIN_EMAIL` / `ADMIN_PASSWORD` from your `.env`. The email and password only take effect when the database is first created; after that, change the password on the admin Account page. The key takes effect whenever the app starts.
 
 ---
 

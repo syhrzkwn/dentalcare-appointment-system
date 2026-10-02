@@ -120,6 +120,7 @@ Kept here so the server can be rebuilt. Run as `ubuntu`:
      DB_PASSWORD=<random>
      ADMIN_EMAIL=admin@dentalcare.com
      ADMIN_PASSWORD=<random>
+     ADMIN_SECRET_KEY=<random, letters and digits>
      ```
    - `certs/` (mode `700`) with the Cloudflare Origin certificate as `origin.pem` and its private key as `origin.key` (mode `600`). See section 6.
 7. AWS Security Group, inbound:
@@ -200,7 +201,7 @@ Copy backups off the server, for example with `scp`, so they survive if the serv
 
 ## 8. After the first deploy
 
-- **Log in to the admin panel.** The first deploy creates the admin account from `ADMIN_EMAIL` and the random `ADMIN_PASSWORD` in the server's `.env`. To see them:
+- **Log in to the admin panel** at `https://dentalcare.syhrzkwn.dev/admin/login.jsp?secret_key=<ADMIN_SECRET_KEY>`. The first deploy creates the admin account from `ADMIN_EMAIL` and the random `ADMIN_PASSWORD` in the server's `.env`. To see all three:
   ```sh
   ssh syhrzkwn-dev-my-server-1 'sudo grep ^ADMIN_ /opt/dentalcare/.env'
   ```

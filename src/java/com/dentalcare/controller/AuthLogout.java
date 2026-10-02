@@ -1,5 +1,6 @@
 package com.dentalcare.controller;
 
+import com.dentalcare.util.AdminKey;
 import java.io.IOException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -30,13 +31,13 @@ public class AuthLogout extends HttpServlet {
         if(session.getAttribute("staff") != null) {
             session.invalidate();
             request.setAttribute("successMsgs", "You have logged out successfully");
-            RequestDispatcher view = request.getRequestDispatcher("/admin/login.jsp?secret_key=dn3@ZDt8UJ8l");
+            RequestDispatcher view = request.getRequestDispatcher(AdminKey.loginPath());
             view.forward(request, response);
         }
         else if(session.getAttribute("dentist") != null) {
             session.invalidate();
             request.setAttribute("successMsgs", "You have logged out successfully");
-            RequestDispatcher view = request.getRequestDispatcher("/admin/login.jsp?secret_key=dn3@ZDt8UJ8l");
+            RequestDispatcher view = request.getRequestDispatcher(AdminKey.loginPath());
             view.forward(request, response);
         }
         else {

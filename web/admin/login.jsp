@@ -5,11 +5,12 @@
 --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page import="java.time.LocalDate"%>
+<%@page import="com.dentalcare.util.AdminKey"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
     <head>
-        <c:if test="${param.secret_key != 'dn3@ZDt8UJ8l'}">
+        <c:if test='<%= !AdminKey.matches(request.getParameter("secret_key")) %>'>
             <jsp:forward page="../login.jsp"></jsp:forward>
         </c:if>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">

@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
-# Smoke test for a running stack: pages load and the admin account can log in and open
-# a page that queries the database.
-# Usage: ADMIN_EMAIL=... ADMIN_PASSWORD=... .github/scripts/smoke-test.sh [base-url]
-#   ADMIN_EMAIL / ADMIN_PASSWORD: the admin account created from .env (default url: http://localhost:8080)
+# Smoke test for a running stack: pages load, the admin login page only opens with the secret
+# key, and the admin account can log in and open a page that queries the database.
+# Usage: ADMIN_EMAIL=... ADMIN_PASSWORD=... ADMIN_SECRET_KEY=... .github/scripts/smoke-test.sh [base-url]
+#   the three values are the ones from .env (default url: http://localhost:8080)
 set -euo pipefail
 
 BASE_URL="${1:-http://localhost:8080}"
 : "${ADMIN_EMAIL:?set ADMIN_EMAIL to the admin login email}"
 : "${ADMIN_PASSWORD:?set ADMIN_PASSWORD to the admin login password}"
+: "${ADMIN_SECRET_KEY:?set ADMIN_SECRET_KEY to the admin login page key}"
 COOKIES="$(mktemp)"
 trap 'rm -f "$COOKIES"' EXIT
 
@@ -25,6 +26,13 @@ for page in "" login.jsp signup.jsp css/main.css; do
     [ "$code" = 200 ] || fail "GET /$page returned $code"
     echo "ok  GET /$page"
 done
+
+curl -s -G --data-urlencode "secret_key=$ADMIN_SECRET_KEY" "$BASE_URL/admin/login.jsp" \
+    | grep -q '<title>Admin - Login</title>' || fail "admin login page did not open with the secret key"
+echo "ok  admin login page opens with the secret key"
+curl -s "$BASE_URL/admin/login.jsp?secret_key=wrong-key" \
+    | grep -q '<title>Admin - Login</title>' && fail "admin login page opened with a wrong key"
+echo "ok  admin login page stays closed with a wrong key"
 
 curl -s -c "$COOKIES" -b "$COOKIES" \
     --data-urlencode "email=$ADMIN_EMAIL" \

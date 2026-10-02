@@ -34,6 +34,8 @@ services:
       DB_URL: jdbc:mysql://db:3306/dentalcare
       DB_USER: ${DB_USER:?set DB_USER in .env}
       DB_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+      # unlocks /admin/login.jsp?secret_key=...
+      ADMIN_SECRET_KEY: ${ADMIN_SECRET_KEY:?set ADMIN_SECRET_KEY in .env}
     # no ports: only caddy talks to the app, over Docker's internal network
     depends_on:
       db:

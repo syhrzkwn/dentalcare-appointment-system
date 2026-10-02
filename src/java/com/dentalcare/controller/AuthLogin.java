@@ -6,6 +6,7 @@ import com.dentalcare.model.Staff;
 import com.dentalcare.dao.PatientDAO;
 import com.dentalcare.dao.DentistDAO;
 import com.dentalcare.dao.StaffDAO;
+import com.dentalcare.util.AdminKey;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -66,7 +67,7 @@ public class AuthLogin extends HttpServlet {
             
             if(!errorMsgs.isEmpty() && user_type.equals("08y*6M")) {
                 request.setAttribute("errorMsgs", errorMsgs);
-                RequestDispatcher view = request.getRequestDispatcher("/admin/login.jsp?secret_key=dn3@ZDt8UJ8l");
+                RequestDispatcher view = request.getRequestDispatcher(AdminKey.loginPath());
                 view.forward(request, response);
                 return;
             }
@@ -142,7 +143,7 @@ public class AuthLogin extends HttpServlet {
                     
                     if(staff == null) {
                         request.setAttribute("errorMsgs", "Email or Password is invalid");
-                        RequestDispatcher view = request.getRequestDispatcher("/admin/login.jsp?secret_key=dn3@ZDt8UJ8l");
+                        RequestDispatcher view = request.getRequestDispatcher(AdminKey.loginPath());
                         view.forward(request, response);
                     }
                     else {

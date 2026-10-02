@@ -39,6 +39,7 @@ jobs:
             echo "DB_PASSWORD=$(openssl rand -hex 16)"
             echo "ADMIN_EMAIL=admin@ci.test"
             echo "ADMIN_PASSWORD=$(openssl rand -hex 16)"
+            echo "ADMIN_SECRET_KEY=$(openssl rand -hex 16)"
           } > .env
 
       - name: Check production compose file

@@ -3,7 +3,7 @@ Dentalcare Appointment System is develop on top of Java Web (JSP, JSTL, and Serv
 
 ## Run with Docker
 ```sh
-cp .env.example .env      # then set the passwords in .env, including ADMIN_PASSWORD
+cp .env.example .env      # then fill in the passwords and ADMIN_SECRET_KEY in .env
 docker compose up --build
 ```
 Then open http://localhost:8080/
@@ -12,7 +12,7 @@ This starts MySQL 8.4 (loaded with `sql/schema.sql` and `sql/seed.sql` on first 
 Data is kept in the `db-data` volume; run `docker compose down -v` to wipe it and re-run the SQL scripts.
 Set `APP_PORT` or `DB_PORT` in `.env` if 8080 or 3306 is already taken.
 
-The admin panel is at `/admin/login.jsp?secret_key=<key>` (the key is in `web/admin/login.jsp`); log in with `ADMIN_EMAIL` and `ADMIN_PASSWORD` from your `.env`.
+The admin panel is at `/admin/login.jsp?secret_key=<ADMIN_SECRET_KEY>`; log in with `ADMIN_EMAIL` and `ADMIN_PASSWORD`. All three come from your `.env`.
 
 New to Docker? See [docs/docker-guide.md](docs/docker-guide.md) for a step-by-step explanation of the setup.
 
@@ -31,6 +31,7 @@ Give Tomcat the database credentials by creating `$CATALINA_HOME/bin/setenv.sh`:
 ```sh
 export DB_USER=your_db_user
 export DB_PASSWORD=your_db_password
+export ADMIN_SECRET_KEY=your_admin_url_key
 ```
 
 ```sh
@@ -50,6 +51,7 @@ The app reads these environment variables:
 | `DB_URL` | `jdbc:mysql://localhost:3306/dentalcare` |
 | `DB_USER` | none, required |
 | `DB_PASSWORD` | none, required |
+| `ADMIN_SECRET_KEY` | none; the admin login page stays closed until it is set |
 
 With Docker, `docker-compose.yml` sets them from `.env`.
 
