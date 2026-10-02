@@ -4,19 +4,19 @@
 CREATE DATABASE IF NOT EXISTS dentalcare;
 USE dentalcare;
 
-CREATE TABLE staffs (
+CREATE TABLE IF NOT EXISTS staffs (
     staff_id INT AUTO_INCREMENT PRIMARY KEY,
     staff_firstname VARCHAR(50),
     staff_lastname VARCHAR(50),
     staff_phone VARCHAR(50),
     staff_email VARCHAR(50),
     staff_password CHAR(32),
-    staff_status VARCHAR(20) DEFAULT 'Active',
+    staff_status VARCHAR(20) DEFAULT 'Available',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- dentist_id 0 is the "Not Assigned" placeholder (see seed.sql)
-CREATE TABLE dentists (
+CREATE TABLE IF NOT EXISTS dentists (
     dentist_id INT AUTO_INCREMENT PRIMARY KEY,
     dentist_firstname VARCHAR(50),
     dentist_lastname VARCHAR(50),
@@ -27,7 +27,7 @@ CREATE TABLE dentists (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE patients (
+CREATE TABLE IF NOT EXISTS patients (
     patient_id INT AUTO_INCREMENT PRIMARY KEY,
     patient_firstname VARCHAR(50),
     patient_lastname VARCHAR(50),
@@ -39,7 +39,7 @@ CREATE TABLE patients (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE treatments (
+CREATE TABLE IF NOT EXISTS treatments (
     treat_id INT AUTO_INCREMENT PRIMARY KEY,
     treat_title VARCHAR(100),
     treat_desc LONG VARCHAR,
@@ -47,7 +47,7 @@ CREATE TABLE treatments (
 );
 
 -- aptmt_status: 'Booked' | 'Completed' | 'Cancelled'
-CREATE TABLE appointments (
+CREATE TABLE IF NOT EXISTS appointments (
     aptmt_id INT AUTO_INCREMENT PRIMARY KEY,
     aptmt_date DATE,
     aptmt_time TIME,

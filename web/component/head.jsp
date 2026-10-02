@@ -6,10 +6,11 @@
 <%@taglib prefix="sql" uri="http://java.sun.com/jsp/jstl/sql"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="com.dentalcare.util.DBConnection"%>
 <sql:setDataSource var="myDatasource"
-           driver="org.apache.derby.jdbc.ClientDriver"
-           url="jdbc:derby://localhost:1527/DentalcareDB"
-           user="app" password="app"/>
+           driver="<%= DBConnection.DRIVER %>"
+           url="<%= DBConnection.URL %>"
+           user="<%= DBConnection.USER %>" password="<%= DBConnection.PASSWORD %>"/>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="icon" href="${pageContext.servletContext.contextPath}/favicon.ico">
 <!-- Bootstrap 5 CSS -->

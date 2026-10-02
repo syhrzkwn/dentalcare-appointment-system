@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.dentalcare.util;
 
 import java.sql.Connection;
@@ -13,18 +9,26 @@ import java.sql.SQLException;
  * @author Syahir
  */
 public class DBConnection {
+    //connection settings from environment variables (see .env.example); credentials have no default
+    public static final String DRIVER = "com.mysql.cj.jdbc.Driver";
+    public static final String URL = env("DB_URL", "jdbc:mysql://localhost:3306/dentalcare");
+    public static final String USER = env("DB_USER", "");
+    public static final String PASSWORD = env("DB_PASSWORD", "");
+
     public static Connection createConnection() {
         try {
-            //declare driver and connection string
-            String driver = "org.apache.derby.jdbc.ClientDriver";
-            String connectionString = "jdbc:derby://localhost:1527/DentalcareDB;create=true;user=app;password=app";
-
             //load the driver
-            Class.forName(driver);
-            return DriverManager.getConnection(connectionString);
+            Class.forName(DRIVER);
+            return DriverManager.getConnection(URL, USER, PASSWORD);
         }
         catch(ClassNotFoundException | SQLException ex) {
+            ex.printStackTrace();
         }
         return null;
+    }
+
+    private static String env(String name, String fallback) {
+        String value = System.getenv(name);
+        return (value == null || value.isEmpty()) ? fallback : value;
     }
 }
