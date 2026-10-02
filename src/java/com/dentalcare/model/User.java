@@ -1,0 +1,68 @@
+package com.dentalcare.model;
+
+import java.io.Serializable;
+/**
+ *
+ * @author syahir
+ */
+public class User implements Serializable {
+    private int id;
+    private String firstname, lastname, phone, email, password, status;
+    
+    //constructor
+    public User() {
+        this.id = 0;
+        this.firstname = "";
+        this.lastname = "";
+        this.phone = "";
+        this.email = "";
+        this.password = "";
+        this.status = "";
+    }
+    
+    //mutator
+    public void setId(int id) {
+        this.id = id;
+    }
+    public void setFirstName(String firstname) {
+        this.firstname = firstname;
+    }
+    public void setLastName(String lastname) {
+        this.lastname = lastname;
+    }
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    public void setPassword(String password) {
+        this.password = password;
+    }
+    public void setStatus(String status) {
+        this.status = status;
+    }
+    
+    //accessor
+    public int getId() {
+        return id;
+    }
+    public String getFirstName() {
+        return firstname;
+    }
+    public String getLastName() {
+        return lastname;
+    }
+    public String getPhone() {
+        return phone;
+    }
+    public String getEmail() {
+        return email;
+    }
+    public String getPassword() {
+        return password;
+    }
+    public String getStatus() {
+        return status;
+    }
+}

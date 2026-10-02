@@ -1,0 +1,69 @@
+# Production stack. The deploy script copies this file to /opt/dentalcare/docker-compose.yml
+# on the server; credentials come from /opt/dentalcare/.env and the Cloudflare Origin
+# certificate from /opt/dentalcare/certs there. See docs/deployment.md.
+#
+# Browser --HTTPS--> Cloudflare --HTTPS (Origin certificate)--> caddy:443 --> app:8080 --> db
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD in .env}
+      MYSQL_DATABASE: dentalcare
+      MYSQL_USER: ${DB_USER:?set DB_USER in .env}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+      # first admin account, created once by sql/seed-admin.sh
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?set ADMIN_EMAIL in .env}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set ADMIN_PASSWORD in .env}
+    # no ports: the database is only reachable by the app, over Docker's internal network
+    volumes:
+      - db-data:/var/lib/mysql
+      # schema.sql, seed-admin.sh and seed.sql run once, on first start with an empty volume
+      - ./sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\""]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  app:
+    # built and pushed by .github/workflows/deploy.yml; IMAGE_TAG is set by the deploy script
+    image: ghcr.io/syhrzkwn/dentalcare-appointment-system:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:mysql://db:3306/dentalcare
+      DB_USER: ${DB_USER:?set DB_USER in .env}
+      DB_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+      # unlocks /admin/login.jsp?secret_key=...
+      ADMIN_SECRET_KEY: ${ADMIN_SECRET_KEY:?set ADMIN_SECRET_KEY in .env}
+    # no ports: only caddy talks to the app, over Docker's internal network
+    depends_on:
+      db:
+        condition: service_healthy
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      # the security group only lets Cloudflare reach this port
+      - "443:443"
+    configs:
+      - source: caddyfile
+        target: /etc/caddy/Caddyfile
+    volumes:
+      - ./certs:/certs:ro
+      - caddy-data:/data
+    depends_on:
+      - app
+
+configs:
+  caddyfile:
+    content: |
+      dentalcare.syhrzkwn.dev {
+        tls /certs/origin.pem /certs/origin.key
+        reverse_proxy app:8080
+      }
+
+volumes:
+  db-data:
+  caddy-data:
