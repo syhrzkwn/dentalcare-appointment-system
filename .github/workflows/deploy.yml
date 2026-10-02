@@ -50,8 +50,9 @@ jobs:
             ${{ env.IMAGE }}:latest
             ${{ env.IMAGE }}:sha-${{ env.DEPLOY_SHA }}
           labels: org.opencontainers.image.source=https://github.com/${{ github.repository }}
+          # the cache only speeds up later builds; a failed cache write must not fail the deploy
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=max,ignore-error=true
 
   deploy:
     name: Deploy to server
