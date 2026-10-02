@@ -48,3 +48,8 @@ The app reads these environment variables:
 | `DB_PASSWORD` | none, required |
 
 With Docker, `docker-compose.yml` sets them from `.env`.
+
+## CI/CD
+Pull requests into `master` are built and smoke-tested by GitHub Actions.
+Merging a pull request into `master` builds the Docker image and deploys it to the production server; direct pushes to `master` are not deployed.
+See [docs/deployment.md](docs/deployment.md).

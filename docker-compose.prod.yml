@@ -1,0 +1,38 @@
+# Production stack. The deploy script copies this file to /opt/dentalcare/docker-compose.yml
+# on the server; credentials come from /opt/dentalcare/.env there. See docs/deployment.md.
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD in .env}
+      MYSQL_DATABASE: dentalcare
+      MYSQL_USER: ${DB_USER:?set DB_USER in .env}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+    # no ports: the database is only reachable by the app, over Docker's internal network
+    volumes:
+      - db-data:/var/lib/mysql
+      # schema.sql and seed.sql run once, on first start with an empty volume
+      - ./sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\""]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  app:
+    # built and pushed by .github/workflows/deploy.yml; IMAGE_TAG is set by the deploy script
+    image: ghcr.io/syhrzkwn/dentalcare-appointment-system:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:mysql://db:3306/dentalcare
+      DB_USER: ${DB_USER:?set DB_USER in .env}
+      DB_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+    ports:
+      - "80:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db-data:
